@@ -109,38 +109,82 @@ namespace WindowsFormsApp2
             }
         }
 
+        private Label firstClickedLabel = null;
+        private Label secondClickedLabel = null;
+
         private void label_Click(object sender, EventArgs e)
         {
-            // Обработчик события двойного клика на Label
-            Label label = (Label)sender;
-            clickCount++;
 
-            if (clickCount == 1)
-            {
-                firstClickText = label.Text;
-                Console.WriteLine($"Первый клик сделан по {label}");
-            }
-            else if (clickCount == 2)
-            {
-                secondClickText = label.Text;
-                Console.WriteLine($"Второй клик сделан по {label}");
-            }
+        // Обработчик события двойного клика на Label
+        Label label = (Label)sender;
+            if (firstClickedLabel == null)
+    {
+        firstClickedLabel = label;
+        Console.WriteLine($"Первый клик сделан по {label.Text}");
+    }
+    else if (firstClickedLabel != label)
+    {
+        secondClickedLabel = label;
+        Console.WriteLine($"Второй клик сделан по {label.Text}");
 
-            if (firstClickText == secondClickText)
-            {
-                Console.WriteLine("Оба числа совпали");
-                // Обнуление
-                clickCount = 0;
-                firstClickText = "";
-                secondClickText = "";
-            }
-            else if (firstClickText != secondClickText && firstClickText != "" && secondClickText != "")
-            {
-                Console.WriteLine("Числа не совпали");
-                // Обнуление.
-                clickCount = 0;
-                firstClickText = "";
-                secondClickText = "";
+                if (firstClickedLabel.Text == secondClickedLabel.Text)
+                {
+                    Console.WriteLine("Оба числа совпали");
+                    // Удаление двух Label
+                    firstClickedLabel.Text = "  ";
+                    secondClickedLabel.Text = "  ";
+
+                    // Проверка и удаление строки, если все ячейки в строке "  "
+                    // Получаем родительский контейнер (TableLayoutPanel) для firstClickedLabel
+                    TableLayoutPanel tableLayoutPanel = firstClickedLabel.Parent as TableLayoutPanel;
+
+                    // Определяем индекс строки, в которой находится firstClickedLabel
+                    int rowIndex = tableLayoutPanel.GetRow(firstClickedLabel);
+
+                    // Устанавливаем флаг, предполагая, что все ячейки в строке пусты
+                    bool allEmpty = true;
+
+                    // Перебираем все элементы в Controls контейнера tableLayoutPanel
+                    foreach (Control control in tableLayoutPanel.Controls)
+                    {
+                        // Проверяем, находится ли control в той же строке, что и firstClickedLabel, и не содержит ли control текст, отличный от "  "
+                        if (tableLayoutPanel.GetRow(control) == rowIndex && control.Text != "  ")
+                        {
+                            // Если хотя бы одна ячейка не пуста, устанавливаем флаг в false и выходим из цикла
+                            allEmpty = false;
+                            break;
+                        }
+                    }
+
+                    // Если флаг allEmpty остался true, это значит, что все ячейки в строке были пустыми
+                    if (allEmpty)
+                    {
+                        // Перебираем все столбцы в строке
+                        for (int columnIndex = 0; columnIndex < tableLayoutPanel.ColumnCount; columnIndex++)
+                        {
+                            // Получаем элемент в текущей ячейке
+                            Control control = tableLayoutPanel.GetControlFromPosition(columnIndex, rowIndex);
+
+                            // Проверяем, существует ли элемент в ячейке
+                            if (control != null)
+                            {
+                                // Удаляем элемент из контейнера tableLayoutPanel
+                                tableLayoutPanel.Controls.Remove(control);
+
+                                // Уничтожаем элемент
+                                control.Dispose();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Числа не совпали");
+                }
+
+        // Сброс состояния
+        firstClickedLabel = null;
+        secondClickedLabel = null;
             }
         }
 
