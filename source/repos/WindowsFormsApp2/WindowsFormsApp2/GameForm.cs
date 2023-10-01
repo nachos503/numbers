@@ -137,7 +137,7 @@ namespace WindowsFormsApp2
             else if (firstClickText != secondClickText && firstClickText != "" && secondClickText != "")
             {
                 Console.WriteLine("Числа не совпали");
-                // Обнуление
+                // Обнуление.
                 clickCount = 0;
                 firstClickText = "";
                 secondClickText = "";
