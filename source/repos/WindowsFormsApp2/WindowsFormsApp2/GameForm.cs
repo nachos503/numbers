@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace WindowsFormsApp2
 {
@@ -111,21 +112,32 @@ namespace WindowsFormsApp2
 
         private Label firstClickedLabel = null;
         private Label secondClickedLabel = null;
-
+        private int sum = 0;
+        private Point previous_Click;//класс для работы с координатами
         private void label_Click(object sender, EventArgs e)
         {
 
-        // Обработчик события двойного клика на Label
-        Label label = (Label)sender;
+            // Обработчик события двойного клика на Label
+            Label label = (Label)sender;
+            MouseEventArgs mouseArgs = e as MouseEventArgs;//преобразуем объект e типа EventArgs к типу MouseEventArgs с помощью оператора as
             if (firstClickedLabel == null)
-    {
-        firstClickedLabel = label;
-        Console.WriteLine($"Первый клик сделан по {label.Text}");
-    }
-    else if (firstClickedLabel != label)
-    {
-        secondClickedLabel = label;
-        Console.WriteLine($"Второй клик сделан по {label.Text}");
+            {
+                firstClickedLabel = label;
+                Console.WriteLine($"Первый клик сделан по {label.Text}");
+            }
+            else if (firstClickedLabel != label)
+            {
+                secondClickedLabel = label;
+                Console.WriteLine($"Второй клик сделан по {label.Text}");
+                if (firstClickText == secondClickText && mouseArgs.Location == previous_Click && mouseArgs != null && previous_Click != null) ///проверка на одинаковые числа
+                {
+
+                    clickCount = 0;
+                    firstClickText = "";
+                    secondClickText = "";
+                    return;
+                }
+                previous_Click = mouseArgs.Location; // запоминаем координату клика 
 
                 if (firstClickedLabel.Text == secondClickedLabel.Text)
                 {
@@ -177,14 +189,29 @@ namespace WindowsFormsApp2
                         }
                     }
                 }
-                else
+                else if (firstClickText != secondClickText && firstClickText != "" && secondClickText != "")
                 {
-                    Console.WriteLine("Числа не совпали");
-                }
+                    sum = 0;
+                    int num1 = int.Parse(firstClickText);
+                    int num2 = int.Parse(secondClickText);
+                    sum += num1 + num2;
+                    if (sum == 10)//провеярет числа на суму 10
+                    {
+                        Console.WriteLine("Сумма чисел равна 10");
+                        clickCount = 0;
+                        firstClickText = "";
+                        secondClickText = "";
 
-        // Сброс состояния
-        firstClickedLabel = null;
-        secondClickedLabel = null;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Числа не совпали");
+                    }
+
+                    // Сброс состояния
+                    firstClickedLabel = null;
+                    secondClickedLabel = null;
+                }
             }
         }
 
