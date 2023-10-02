@@ -120,7 +120,7 @@ namespace WindowsFormsApp2
             // Обработчик события двойного клика на Label
             Label label = (Label)sender;
             MouseEventArgs mouseArgs = e as MouseEventArgs;//преобразуем объект e типа EventArgs к типу MouseEventArgs с помощью оператора as
-            if (firstClickedLabel == null)
+            if (firstClickedLabel == null || firstClickedLabel.Text == "  ")
             {
                 firstClickedLabel = label;
                 Console.WriteLine($"Первый клик сделан по {label.Text}");
@@ -129,12 +129,10 @@ namespace WindowsFormsApp2
             {
                 secondClickedLabel = label;
                 Console.WriteLine($"Второй клик сделан по {label.Text}");
-                if (firstClickText == secondClickText && mouseArgs.Location == previous_Click && mouseArgs != null && previous_Click != null) ///проверка на одинаковые числа
+                if (firstClickedLabel.Text == secondClickedLabel.Text && mouseArgs.Location == previous_Click && mouseArgs != null && previous_Click != null) ///проверка на одинаковые числа
                 {
 
                     clickCount = 0;
-                    firstClickText = "";
-                    secondClickText = "";
                     return;
                 }
                 previous_Click = mouseArgs.Location; // запоминаем координату клика 
@@ -185,32 +183,39 @@ namespace WindowsFormsApp2
 
                                 // Уничтожаем элемент
                                 control.Dispose();
+                                firstClickedLabel = null;
+                                secondClickedLabel = null;
+                                break;
                             }
                         }
                     }
+                   
                 }
-                else if (firstClickText != secondClickText && firstClickText != "" && secondClickText != "")
+                if (firstClickedLabel.Text != secondClickedLabel.Text)
                 {
-                    sum = 0;
-                    int num1 = int.Parse(firstClickText);
-                    int num2 = int.Parse(secondClickText);
-                    sum += num1 + num2;
-                    if (sum == 10)//провеярет числа на суму 10
+                    if (firstClickedLabel.Text != " " && secondClickedLabel.Text != " ")
                     {
-                        Console.WriteLine("Сумма чисел равна 10");
-                        clickCount = 0;
-                        firstClickText = "";
-                        secondClickText = "";
+                        sum = 0;
+                        int num1 = int.Parse(firstClickedLabel.Text);
+                        int num2 = int.Parse(secondClickedLabel.Text);
+                        sum += num1 + num2;
+                        if (sum == 10)//провеярет числа на суму 10
+                        {
+                            Console.WriteLine("Сумма чисел равна 10");
+                            clickCount = 0;
+                            //firstClickText = "";
+                            // secondClickText = "";
 
-                    }
-                    else
-                    {
-                        Console.WriteLine("Числа не совпали");
-                    }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Числа не совпали");
+                        }
 
-                    // Сброс состояния
-                    firstClickedLabel = null;
-                    secondClickedLabel = null;
+                        // Сброс состояния
+                        firstClickedLabel = null;
+                        secondClickedLabel = null;
+                    }
                 }
             }
         }
