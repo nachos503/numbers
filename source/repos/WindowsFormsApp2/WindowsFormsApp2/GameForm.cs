@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 
 namespace WindowsFormsApp2
@@ -11,15 +7,15 @@ namespace WindowsFormsApp2
     class GameForm
     {
         public Form Form { get; private set; }
-        private TableLayoutPanel tableLayoutPanel;//Для расположения каждого элемента из матрицы в виде ячеек таблицы
-        private int[,] matrix; // создаем матрицу в виде двойного массива 
+        private TableLayoutPanel tableLayoutPanel;
+        private int[,] matrix;
 
         public void Initialize()
         {
-            InitializeMatrix(); // Создаем матрицу, заполняем её рандомными цифрами от 1 до 9 
-            InitializeForm(); // Создаем окно для самой игры, прописываем его размер и название
-            InitializeTableLayoutPanel();// Создаем таблицу 7х4
-            PopulateTableLayoutPanel(); // Добавляем элементы управления в таблицу, даем возможность кликать на цифры в таблице
+            InitializeMatrix();
+            InitializeForm();
+            InitializeTableLayoutPanel();
+            PopulateTableLayoutPanel();
         }
 
         private void InitializeMatrix()
@@ -31,7 +27,7 @@ namespace WindowsFormsApp2
             {
                 for (int col = 0; col < 7; col++)
                 {
-                    matrix[row, col] = random.Next(1, 9);
+                    matrix[row, col] = random.Next(1, 10);
                 }
             }
         }
@@ -41,19 +37,23 @@ namespace WindowsFormsApp2
             Form = new Form();
             Form.Size = new System.Drawing.Size(400, 300);
             Form.BackColor = System.Drawing.Color.White;
-            Form.Text = "Цифреки онлайн без смс и регистрации";
+            Form.Text = "Циферки онлайн без смс и регистрации";
         }
-        /// <summary>
-        /// Создает таблицу 7х4
-        /// </summary>
+
         private void InitializeTableLayoutPanel()
         {
             tableLayoutPanel = new TableLayoutPanel();
-            tableLayoutPanel.Dock = DockStyle.Top;
+            tableLayoutPanel.Dock = DockStyle.Fill;
             Form.Controls.Add(tableLayoutPanel);
 
             tableLayoutPanel.RowCount = 4;
             tableLayoutPanel.ColumnCount = 7;
+
+            // Устанавливаем минимальную ширину для каждого столбца
+            for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+            {
+                tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30));
+            }
         }
 
         private void PopulateTableLayoutPanel()
@@ -65,13 +65,16 @@ namespace WindowsFormsApp2
                     int digit = matrix[row, col];
 
                     Label label = new Label();
-                    label.Text = digit.ToString(); // Переносим матрицу в текстовых формат для label.Text для дальнейших манипуляций 
-                    SetLabelColor(label); // Устанавливаем разные цвета для цифр
+                    label.Text = digit.ToString();
+                    SetLabelColor(label);
 
                     label.AutoSize = true;
-                    tableLayoutPanel.Controls.Add(label, col, row); // Делаем цифры кликабельными с помощью элементов управления label
+                    label.TextAlign = ContentAlignment.MiddleCenter;
+                    label.Font = new Font("Arial", 16, FontStyle.Bold);
 
-                    label.Click += new EventHandler(label_Click); // "Переопределяем" event Click, чтобы он позволял кликать на 2 разных цифры в таблице 
+                    tableLayoutPanel.Controls.Add(label, col, row);
+
+                    label.Click += new EventHandler(label_Click);
                 }
             }
         }
@@ -112,15 +115,13 @@ namespace WindowsFormsApp2
 
         private Label firstClickedLabel = null;
         private Label secondClickedLabel = null;
-        private int sum = 0;
         private Point previous_Click;//класс для работы с координатами
+        private int sum = 0;
         private void label_Click(object sender, EventArgs e)
         {
-
-            // Обработчик события двойного клика на Label
             Label label = (Label)sender;
             MouseEventArgs mouseArgs = e as MouseEventArgs;//преобразуем объект e типа EventArgs к типу MouseEventArgs с помощью оператора as
-            if (firstClickedLabel == null || firstClickedLabel.Text == "  ")
+            if (firstClickedLabel == null || firstClickedLabel.Visible == false)
             {
                 firstClickedLabel = label;
                 Console.WriteLine($"Первый клик сделан по {label.Text}");
@@ -131,8 +132,6 @@ namespace WindowsFormsApp2
                 Console.WriteLine($"Второй клик сделан по {label.Text}");
                 if (firstClickedLabel.Text == secondClickedLabel.Text && mouseArgs.Location == previous_Click && mouseArgs != null && previous_Click != null) ///проверка на одинаковые числа
                 {
-
-                    clickCount = 0;
                     return;
                 }
                 previous_Click = mouseArgs.Location; // запоминаем координату клика 
@@ -140,58 +139,17 @@ namespace WindowsFormsApp2
                 if (firstClickedLabel.Text == secondClickedLabel.Text)
                 {
                     Console.WriteLine("Оба числа совпали");
-                    // Удаление двух Label
-                    firstClickedLabel.Text = "  ";
-                    secondClickedLabel.Text = "  ";
+                    // Скрытие двух Label
+                    firstClickedLabel.Visible = false;
+                    secondClickedLabel.Visible = false;
 
                     // Проверка и удаление строки, если все ячейки в строке "  "
                     // Получаем родительский контейнер (TableLayoutPanel) для firstClickedLabel
                     TableLayoutPanel tableLayoutPanel = firstClickedLabel.Parent as TableLayoutPanel;
 
-                    // Определяем индекс строки, в которой находится firstClickedLabel
-                    int rowIndex = tableLayoutPanel.GetRow(firstClickedLabel);
-
-                    // Устанавливаем флаг, предполагая, что все ячейки в строке пусты
-                    bool allEmpty = true;
-
-                    // Перебираем все элементы в Controls контейнера tableLayoutPanel
-                    foreach (Control control in tableLayoutPanel.Controls)
-                    {
-                        // Проверяем, находится ли control в той же строке, что и firstClickedLabel, и не содержит ли control текст, отличный от "  "
-                        if (tableLayoutPanel.GetRow(control) == rowIndex && control.Text != "  ")
-                        {
-                            // Если хотя бы одна ячейка не пуста, устанавливаем флаг в false и выходим из цикла
-                            allEmpty = false;
-                            break;
-                        }
-                    }
-
-                    // Если флаг allEmpty остался true, это значит, что все ячейки в строке были пустыми
-                    if (allEmpty)
-                    {
-                        // Перебираем все столбцы в строке
-                        for (int columnIndex = 0; columnIndex < tableLayoutPanel.ColumnCount; columnIndex++)
-                        {
-                            // Получаем элемент в текущей ячейке
-                            Control control = tableLayoutPanel.GetControlFromPosition(columnIndex, rowIndex);
-
-                            // Проверяем, существует ли элемент в ячейке
-                            if (control != null)
-                            {
-                                // Удаляем элемент из контейнера tableLayoutPanel
-                                tableLayoutPanel.Controls.Remove(control);
-
-                                // Уничтожаем элемент
-                                control.Dispose();
-                                firstClickedLabel = null;
-                                secondClickedLabel = null;
-                                break;
-                            }
-                        }
-                    }
-                   
+                    CheckAndHideEmptyRows();
                 }
-                if (firstClickedLabel.Text != secondClickedLabel.Text)
+                else if (firstClickedLabel.Text != secondClickedLabel.Text)
                 {
                     if (firstClickedLabel.Text != " " && secondClickedLabel.Text != " ")
                     {
@@ -202,17 +160,14 @@ namespace WindowsFormsApp2
                         if (sum == 10)//провеярет числа на суму 10
                         {
                             Console.WriteLine("Сумма чисел равна 10");
-                            clickCount = 0;
-                            //firstClickText = "";
-                            // secondClickText = "";
+                           firstClickedLabel.Visible =false;
+                           secondClickedLabel.Visible =false;   
 
                         }
                         else
                         {
                             Console.WriteLine("Числа не совпали");
                         }
-
-                        // Сброс состояния
                         firstClickedLabel = null;
                         secondClickedLabel = null;
                     }
@@ -220,8 +175,40 @@ namespace WindowsFormsApp2
             }
         }
 
-        private static int clickCount = 0;
-        private static string firstClickText = "";
-        private static string secondClickText = "";
+        private void CheckAndHideEmptyRows()
+        {
+            for (int row = 0; row < tableLayoutPanel.RowCount; row++)
+            {
+                bool rowIsEmpty = true;
+                for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+                {
+                    Control control = tableLayoutPanel.GetControlFromPosition(col, row);
+                    if (control != null && control.Visible)
+                    {
+                        rowIsEmpty = false;
+                        break;
+                    }
+                }
+
+                if (rowIsEmpty)
+                {
+                    HideRowElements(row);
+                }
+            }
+        }
+
+        private void HideRowElements(int rowIndex)
+        {
+            for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+            {
+                Control control = tableLayoutPanel.GetControlFromPosition(col, rowIndex);
+                if (control != null)
+                {
+                    control.Visible = false;
+                }
+            }
+        }
+
     }
 }
+
