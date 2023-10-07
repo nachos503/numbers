@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace WindowsFormsApp2
 {
@@ -9,6 +11,8 @@ namespace WindowsFormsApp2
         public Form Form { get; private set; }
         private TableLayoutPanel tableLayoutPanel;
         private int[,] matrix;
+      //  private List<int> visibleNumbers = new List<int>(); // Список для хранения видимых чисел
+        private Label scoreLabel; // Поле для Label с счетом
 
         public void Initialize()
         {
@@ -32,12 +36,69 @@ namespace WindowsFormsApp2
             }
         }
 
-        private void InitializeForm()
+        public void InitializeForm()
         {
             Form = new Form();
-            Form.Size = new System.Drawing.Size(400, 300);
+            Form.Size = new System.Drawing.Size(500, 500);
             Form.BackColor = System.Drawing.Color.White;
             Form.Text = "Циферки онлайн без смс и регистрации";
+
+            CreateAddButton();
+            CreateScoreBoard();
+            CreateScoreBoardButton();
+            CreateHelpButton();
+        }
+
+        private void CreateAddButton()
+        {
+            Button addButton = new Button();
+            addButton.Text = "Добавить цифры";
+            addButton.Location = new Point(250, 50);
+            addButton.AutoSize = true;
+            addButton.Click += (sender, e) => AddVisibleElementsToTable();
+
+            // Добавляем кнопку на форму
+            Form.Controls.Add(addButton);
+        }
+
+        private void CreateScoreBoard()
+        {
+                    // Создаем или обновляем Label для отображения счета
+            if (scoreLabel == null)
+            {
+                scoreLabel = new Label();
+                scoreLabel.ForeColor = Color.Black;
+                scoreLabel.Font = new Font("Arial", 24, FontStyle.Bold);
+                scoreLabel.AutoSize = true;
+                scoreLabel.Location = new Point(280, 10); // Расположение Label с счетом
+                scoreLabel.Text = "Счёт: " + score;
+
+                // Добавляем Label на форму
+                Form.Controls.Add(scoreLabel); 
+                
+            }
+        }
+
+        private void CreateScoreBoardButton()
+        {
+            Button ScoreBoardButton = new Button();
+            ScoreBoardButton.Text = "Таблица лидеров";
+            ScoreBoardButton.Location = new Point(250, 80);
+            ScoreBoardButton.AutoSize = true;
+
+            //  Добавляем кнопку на форму
+            Form.Controls.Add(ScoreBoardButton);
+        }
+
+        private void CreateHelpButton()
+        {
+            Button HelpButton = new Button();
+            HelpButton.Text = "Помощь";
+            HelpButton.Location = new Point(250, 110);
+            HelpButton.AutoSize = true;
+
+            //Добавляем кнопку на форму
+            Form.Controls.Add(HelpButton);
         }
 
         private void InitializeTableLayoutPanel()
@@ -46,7 +107,7 @@ namespace WindowsFormsApp2
             tableLayoutPanel.Dock = DockStyle.Fill;
             Form.Controls.Add(tableLayoutPanel);
 
-            tableLayoutPanel.RowCount = 4;
+            tableLayoutPanel.RowCount = 128;
             tableLayoutPanel.ColumnCount = 7;
 
             // Устанавливаем минимальную ширину для каждого столбца
@@ -75,6 +136,7 @@ namespace WindowsFormsApp2
                     tableLayoutPanel.Controls.Add(label, col, row);
 
                     label.Click += new EventHandler(label_Click);
+
                 }
             }
         }
@@ -113,13 +175,17 @@ namespace WindowsFormsApp2
             }
         }
 
-        private Label firstClickedLabel = null;
-        private Label secondClickedLabel = null;
-        private Point previous_Click;//класс для работы с координатами
+        private Label firstClickedLabel;
+        private Label secondClickedLabel;
+        private Point previous_Click;   //класс для работы с координатами
         private int sum = 0;
+        private int score = 0; // Поле для хранения счета
+
         private void label_Click(object sender, EventArgs e)
         {
+            // Приводим sender к типу label для дальнейших взаимодействий
             Label label = (Label)sender;
+
             MouseEventArgs mouseArgs = e as MouseEventArgs;//преобразуем объект e типа EventArgs к типу MouseEventArgs с помощью оператора as
             if (firstClickedLabel == null || firstClickedLabel.Visible == false)
             {
@@ -139,11 +205,17 @@ namespace WindowsFormsApp2
                 if (firstClickedLabel.Text == secondClickedLabel.Text)
                 {
                     Console.WriteLine("Оба числа совпали");
+
+                    UpdateScore(Convert.ToInt32(firstClickedLabel.Text) + Convert.ToInt32(secondClickedLabel.Text));
+
                     // Скрытие двух Label
                     firstClickedLabel.Visible = false;
                     secondClickedLabel.Visible = false;
 
-                    // Проверка и удаление строки, если все ячейки в строке "  "
+                    if(IsGameFinished()){
+                        MessageBox.Show($"Игра окончена!\n Счёт: {score}");
+                    }
+
                     // Получаем родительский контейнер (TableLayoutPanel) для firstClickedLabel
                     TableLayoutPanel tableLayoutPanel = firstClickedLabel.Parent as TableLayoutPanel;
 
@@ -160,14 +232,21 @@ namespace WindowsFormsApp2
                         if (sum == 10)//провеярет числа на суму 10
                         {
                             Console.WriteLine("Сумма чисел равна 10");
-                           firstClickedLabel.Visible =false;
-                           secondClickedLabel.Visible =false;   
+                            UpdateScore(Convert.ToInt32(firstClickedLabel.Text) + Convert.ToInt32(secondClickedLabel.Text));
+                            firstClickedLabel.Visible = false;
+                            secondClickedLabel.Visible = false;
+                            if (IsGameFinished())
+                            {
+                                MessageBox.Show($"Игра окончена!\n Счёт: {score}");
+                            }
 
                         }
                         else
                         {
                             Console.WriteLine("Числа не совпали");
                         }
+
+                        //Сбрасываем значения, чтобы не забивались от неправильных кликов
                         firstClickedLabel = null;
                         secondClickedLabel = null;
                     }
@@ -209,6 +288,78 @@ namespace WindowsFormsApp2
             }
         }
 
-    }
-}
+        private void AddVisibleElementsToTable()
+        {
+            int newRow = tableLayoutPanel.RowCount; // Получить текущее количество строк
+            int newCol = 0; // Начать добавление с первого столбца в новой строке
 
+            for (int row = 0; row < tableLayoutPanel.RowCount; row++)
+            {
+                for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+                {
+                    Control control = tableLayoutPanel.GetControlFromPosition(col, row);
+
+                    if (control != null && control.Visible)
+                    {
+                        // Создаем новый Label с такими же параметрами
+                        Label newLabel = new Label();
+                        newLabel.Text = control.Text;
+                        SetLabelColor(newLabel);
+                        newLabel.AutoSize = true;
+                        newLabel.TextAlign = ContentAlignment.MiddleCenter;
+                        newLabel.Font = new Font("Arial", 16, FontStyle.Bold);
+
+                        // Устанавливаем минимальную ширину для текущего столбца
+                        tableLayoutPanel.ColumnStyles[col] = new ColumnStyle(SizeType.Absolute, 30); // Заменить 30 на минимальную ширину
+
+                        // Добавляем новый Label в конец таблицы в новой строке и текущем столбце
+                        tableLayoutPanel.Controls.Add(newLabel, newCol, newRow);
+
+                        newCol++; // Переходим к следующему столбцу
+
+                        if (newCol >= tableLayoutPanel.ColumnCount)
+                        {
+                            // Если достигнут конец строки, переходим на следующую строку и сбрасываем счетчик столбцов
+                            newRow++;
+                            newCol = 0;
+                        }
+
+                        // Привязываем обработчик события label_Click к новому Label
+                        newLabel.Click += new EventHandler(label_Click);
+                    }
+                }
+            }
+
+            tableLayoutPanel.RowCount = newRow + 1; // Обновляем RowCount после добавления новых элементов
+            // нужно, чтобы не добавлялись цифры в старые label, только в новые 
+        }
+
+        private bool IsGameFinished()
+        {
+            foreach (Control control in tableLayoutPanel.Controls)
+            {
+                if (control is Label label && label.Visible)
+                {
+                    // Если хоть один видимый Label найден, игра еще не закончена
+                    return false;
+                }
+            }
+
+            // Если все цифры стали невидимыми, игра закончена
+            return true;
+        }
+
+        // Метод для обновления счета и отображения его на форме
+        private void UpdateScore(int pointsToAdd)
+        {
+            // Увеличиваем счет на указанное количество очков
+            score += pointsToAdd; 
+
+            // Обновляем текст Label с текущим счетом
+            scoreLabel.Text = "Счёт: " + score.ToString();
+        }
+
+
+    }
+
+}
