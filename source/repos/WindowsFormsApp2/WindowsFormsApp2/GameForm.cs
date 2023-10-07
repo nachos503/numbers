@@ -11,7 +11,6 @@ namespace WindowsFormsApp2
         public Form Form { get; private set; }
         private TableLayoutPanel tableLayoutPanel;
         private int[,] matrix;
-      //  private List<int> visibleNumbers = new List<int>(); // Список для хранения видимых чисел
         private Label scoreLabel; // Поле для Label с счетом
 
         public void Initialize()
@@ -39,7 +38,7 @@ namespace WindowsFormsApp2
         public void InitializeForm()
         {
             Form = new Form();
-            Form.Size = new System.Drawing.Size(500, 500);
+            Form.Size = new System.Drawing.Size(1920, 1080);
             Form.BackColor = System.Drawing.Color.White;
             Form.Text = "Циферки онлайн без смс и регистрации";
 
@@ -107,7 +106,7 @@ namespace WindowsFormsApp2
             tableLayoutPanel.Dock = DockStyle.Fill;
             Form.Controls.Add(tableLayoutPanel);
 
-            tableLayoutPanel.RowCount = 128;
+            tableLayoutPanel.RowCount = 4;
             tableLayoutPanel.ColumnCount = 7;
 
             // Устанавливаем минимальную ширину для каждого столбца
@@ -180,6 +179,7 @@ namespace WindowsFormsApp2
         private Point previous_Click;   //класс для работы с координатами
         private int sum = 0;
         private int score = 0; // Поле для хранения счета
+ 
 
         private void label_Click(object sender, EventArgs e)
         {
@@ -217,7 +217,6 @@ namespace WindowsFormsApp2
                         MessageBox.Show($"Игра окончена!\n Счёт: {score}");
                     }
 
-     
                 }
                 else if (firstClickedLabel.Text != secondClickedLabel.Text)
                 {
@@ -292,7 +291,7 @@ namespace WindowsFormsApp2
             }
                 if (tableLayoutPanel.GetRow(firstClickedLabel) < tableLayoutPanel1.GetRow(secondClickedLabel)) //сравниваем какой раньше встречается
             {
-                for (int row = tableLayoutPanel.GetRow(firstClickedLabel); row < tableLayoutPanel1.GetRow(secondClickedLabel); row++) // идем от первого до второго клика
+                for (int row = tableLayoutPanel1.GetRow(firstClickedLabel)+1; row < tableLayoutPanel.GetRow(secondClickedLabel); row++) // идем от первого до второго клика
                 {
                     Label labelBetween = tableLayoutPanel.GetControlFromPosition(columnNumber, row) as Label; //переводим конкуретную позицию таблицу в тип Label 
                     if (labelBetween != null && labelBetween.Visible) // если не null и если отображается элемент управления (не удален)
@@ -303,7 +302,7 @@ namespace WindowsFormsApp2
             }
             else if (tableLayoutPanel.GetRow(firstClickedLabel) > tableLayoutPanel1.GetRow(secondClickedLabel))
             {
-                for (int row = tableLayoutPanel1.GetRow(secondClickedLabel); row < tableLayoutPanel.GetRow(firstClickedLabel); row++) // идем от первого до второго клика
+                for (int row = tableLayoutPanel1.GetRow(secondClickedLabel)+1; row < tableLayoutPanel.GetRow(firstClickedLabel); row++) // идем от первого до второго клика
                 {
                     Label labelBetween = tableLayoutPanel1.GetControlFromPosition(columnNumber, row) as Label; //переводим конкуретную позицию таблицу в тип Label 
                     if (labelBetween != null && labelBetween.Visible) // если не null и если виден
@@ -328,7 +327,7 @@ namespace WindowsFormsApp2
             }
             if (tableLayoutPanel.GetColumn(firstlabelclick) < tableLayoutPanel1.GetColumn(secondlabelclick))
             {
-                for (int column = tableLayoutPanel.GetColumn(firstlabelclick); column < tableLayoutPanel1.GetColumn(secondlabelclick); column++)
+                for (int column = tableLayoutPanel.GetColumn(firstlabelclick)+1; column < tableLayoutPanel1.GetColumn(secondlabelclick); column++)
                 {
                     Label labelBetween = tableLayoutPanel.GetControlFromPosition(column, rowNumber) as Label;
                     if (labelBetween != null && labelBetween.Visible)
@@ -339,7 +338,7 @@ namespace WindowsFormsApp2
             }
             else if (tableLayoutPanel.GetColumn(firstlabelclick) > tableLayoutPanel1.GetColumn(secondlabelclick))
             {
-                for (int column = tableLayoutPanel1.GetColumn(secondlabelclick); column < tableLayoutPanel.GetColumn(firstlabelclick); column++)
+                for (int column = tableLayoutPanel1.GetColumn(secondlabelclick)+1; column < tableLayoutPanel.GetColumn(firstlabelclick); column++)
                 {
                     Label labelBetween = tableLayoutPanel1.GetControlFromPosition(column, rowNumber) as Label;
                     if (labelBetween != null && labelBetween.Visible)
@@ -363,7 +362,7 @@ namespace WindowsFormsApp2
                 {
                     Control control = tableLayoutPanel.GetControlFromPosition(col, row);
 
-                    if (control != null && control.Visible) //обработка исключений
+                    if (control != null && control.Visible) //если мы встречаем путое место, в которое можно вставить цифры
                     {
                         // Создаем новый Label с такими же параметрами
                         Label newLabel = new Label();
@@ -393,7 +392,7 @@ namespace WindowsFormsApp2
                     }
                 }
             }
-            tableLayoutPanel.RowCount = newRow + 1; // Обновляем RowCount после добавления новых элементов
+             tableLayoutPanel.RowCount = newRow + 1; // Обновляем RowCount после добавления новых элементов
             // нужно, чтобы не добавлялись цифры в старые label, только в новые 
         }
 
@@ -421,7 +420,6 @@ namespace WindowsFormsApp2
             // Обновляем текст Label с текущим счетом
             scoreLabel.Text = "Счёт: " + score.ToString();
         }
-
 
     }
 

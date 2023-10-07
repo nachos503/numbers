@@ -1,7 +1,11 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\source",
+    "\\source\\repos",
+    "\\source\\repos\\WindowsFormsApp2",
+    "\\source\\repos\\WindowsFormsApp2\\WindowsFormsApp2"
   ],
-  "SelectedNode": "\\WindowsFormsApp2.sln",
+  "SelectedNode": "\\source\\repos\\WindowsFormsApp2\\WindowsFormsApp2\\GameForm.cs",
   "PreviewInSolutionExplorer": false
 }
