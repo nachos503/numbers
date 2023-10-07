@@ -187,7 +187,7 @@ namespace WindowsFormsApp2
             Label label = (Label)sender;
 
             MouseEventArgs mouseArgs = e as MouseEventArgs;//преобразуем объект e типа EventArgs к типу MouseEventArgs с помощью оператора as
-            if (firstClickedLabel == null || firstClickedLabel.Visible == false)
+            if (firstClickedLabel == null)
             {
                 firstClickedLabel = label;
                 Console.WriteLine($"Первый клик сделан по {label.Text}");
@@ -202,7 +202,7 @@ namespace WindowsFormsApp2
                 }
                 previous_Click = mouseArgs.Location; // запоминаем координату клика 
 
-                if (firstClickedLabel.Text == secondClickedLabel.Text)
+                if (firstClickedLabel.Text == secondClickedLabel.Text && Checking_Intersections())
                 {
                     Console.WriteLine("Оба числа совпали");
 
@@ -212,14 +212,12 @@ namespace WindowsFormsApp2
                     firstClickedLabel.Visible = false;
                     secondClickedLabel.Visible = false;
 
-                    if(IsGameFinished()){
+                    if(IsGameFinished())
+                    {
                         MessageBox.Show($"Игра окончена!\n Счёт: {score}");
                     }
 
-                    // Получаем родительский контейнер (TableLayoutPanel) для firstClickedLabel
-                    TableLayoutPanel tableLayoutPanel = firstClickedLabel.Parent as TableLayoutPanel;
-
-                    CheckAndHideEmptyRows();
+     
                 }
                 else if (firstClickedLabel.Text != secondClickedLabel.Text)
                 {
@@ -229,7 +227,7 @@ namespace WindowsFormsApp2
                         int num1 = int.Parse(firstClickedLabel.Text);
                         int num2 = int.Parse(secondClickedLabel.Text);
                         sum += num1 + num2;
-                        if (sum == 10)//провеярет числа на суму 10
+                        if (sum == 10 && Checking_Intersections())//провеярет числа на суму 10
                         {
                             Console.WriteLine("Сумма чисел равна 10");
                             UpdateScore(Convert.ToInt32(firstClickedLabel.Text) + Convert.ToInt32(secondClickedLabel.Text));
@@ -244,6 +242,8 @@ namespace WindowsFormsApp2
                         else
                         {
                             Console.WriteLine("Числа не совпали");
+                            firstClickedLabel = null;
+                            secondClickedLabel = null;
                         }
 
                         //Сбрасываем значения, чтобы не забивались от неправильных кликов
@@ -251,41 +251,105 @@ namespace WindowsFormsApp2
                         secondClickedLabel = null;
                     }
                 }
+                firstClickedLabel = null;
+                secondClickedLabel = null;
             }
         }
 
-        private void CheckAndHideEmptyRows()
+        private bool Checking_Intersections()
         {
-            for (int row = 0; row < tableLayoutPanel.RowCount; row++)
+            TableLayoutPanel tableLayoutPanel = firstClickedLabel.Parent as TableLayoutPanel;
+
+            // Определяем индекс строки и столбца
+            int rowIndex1 = tableLayoutPanel.GetRow(firstClickedLabel);
+            int columnIndex1 = tableLayoutPanel.GetColumn(firstClickedLabel);
+            int rowIndex2 = tableLayoutPanel.GetRow(secondClickedLabel);
+            int columnIndex2 = tableLayoutPanel.GetColumn(secondClickedLabel);
+
+            foreach (Control control in tableLayoutPanel.Controls)
             {
-                bool rowIsEmpty = true;
-                for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+                // Проверяем, находится ли control в той же строке, что и firstClickedLabel, и не содержит ли control текст, отличный от "  "
+                if ((rowIndex1 == rowIndex2 && (AreNumbersInBetweenByRow(firstClickedLabel,secondClickedLabel)))
+                    || ((columnIndex1 == columnIndex2) && (AreNumbersInBetweenByColumn(firstClickedLabel, secondClickedLabel))))
                 {
-                    Control control = tableLayoutPanel.GetControlFromPosition(col, row);
-                    if (control != null && control.Visible)
+                    //устанавливаем флаг в true и выходим из цикла
+                    return true;
+                }
+            }
+            // Если не найдено препятствий, возвращаем false
+            return false;
+        }
+
+        private bool AreNumbersInBetweenByColumn(Label firstlabelclick, Label secondlabelclick) //провекра наличие препятсвий по столбцам
+        {
+            TableLayoutPanel tableLayoutPanel = firstClickedLabel.Parent as TableLayoutPanel;
+            TableLayoutPanel tableLayoutPanel1 = secondClickedLabel.Parent as TableLayoutPanel;
+
+            int columnNumber = tableLayoutPanel.GetColumn(firstClickedLabel);
+            if (Math.Abs(tableLayoutPanel.GetRow(firstlabelclick) - tableLayoutPanel1.GetRow(secondlabelclick)) == 1)
+            {
+                return true;
+            }
+                if (tableLayoutPanel.GetRow(firstClickedLabel) < tableLayoutPanel1.GetRow(secondClickedLabel)) //сравниваем какой раньше встречается
+            {
+                for (int row = tableLayoutPanel.GetRow(firstClickedLabel); row < tableLayoutPanel1.GetRow(secondClickedLabel); row++) // идем от первого до второго клика
+                {
+                    Label labelBetween = tableLayoutPanel.GetControlFromPosition(columnNumber, row) as Label; //переводим конкуретную позицию таблицу в тип Label 
+                    if (labelBetween != null && labelBetween.Visible) // если не null и если отображается элемент управления (не удален)
                     {
-                        rowIsEmpty = false;
-                        break;
+                        return false;
+                    }
+                }
+            }
+            else if (tableLayoutPanel.GetRow(firstClickedLabel) > tableLayoutPanel1.GetRow(secondClickedLabel))
+            {
+                for (int row = tableLayoutPanel1.GetRow(secondClickedLabel); row < tableLayoutPanel.GetRow(firstClickedLabel); row++) // идем от первого до второго клика
+                {
+                    Label labelBetween = tableLayoutPanel1.GetControlFromPosition(columnNumber, row) as Label; //переводим конкуретную позицию таблицу в тип Label 
+                    if (labelBetween != null && labelBetween.Visible) // если не null и если виден
+                    {
+                        return false;
                     }
                 }
 
-                if (rowIsEmpty)
-                {
-                    HideRowElements(row);
-                }
             }
+             return true;
         }
 
-        private void HideRowElements(int rowIndex)
+        private bool AreNumbersInBetweenByRow(Label firstlabelclick, Label secondlabelclick)
         {
-            for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+            TableLayoutPanel tableLayoutPanel = firstlabelclick.Parent as TableLayoutPanel;
+            TableLayoutPanel tableLayoutPanel1 = secondlabelclick.Parent as TableLayoutPanel;
+
+            int rowNumber = tableLayoutPanel.GetRow(firstlabelclick);
+            if (Math.Abs(tableLayoutPanel.GetColumn(firstlabelclick) - tableLayoutPanel1.GetColumn(secondlabelclick)) == 1)
             {
-                Control control = tableLayoutPanel.GetControlFromPosition(col, rowIndex);
-                if (control != null)
+                return true;
+            }
+            if (tableLayoutPanel.GetColumn(firstlabelclick) < tableLayoutPanel1.GetColumn(secondlabelclick))
+            {
+                for (int column = tableLayoutPanel.GetColumn(firstlabelclick); column < tableLayoutPanel1.GetColumn(secondlabelclick); column++)
                 {
-                    control.Visible = false;
+                    Label labelBetween = tableLayoutPanel.GetControlFromPosition(column, rowNumber) as Label;
+                    if (labelBetween != null && labelBetween.Visible)
+                    {
+                        return false;
+                    }
                 }
             }
+            else if (tableLayoutPanel.GetColumn(firstlabelclick) > tableLayoutPanel1.GetColumn(secondlabelclick))
+            {
+                for (int column = tableLayoutPanel1.GetColumn(secondlabelclick); column < tableLayoutPanel.GetColumn(firstlabelclick); column++)
+                {
+                    Label labelBetween = tableLayoutPanel1.GetControlFromPosition(column, rowNumber) as Label;
+                    if (labelBetween != null && labelBetween.Visible)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true; // Возвращаем true, если не найдено видимых Label'ов между ними по строкам
         }
 
         private void AddVisibleElementsToTable()
@@ -299,7 +363,7 @@ namespace WindowsFormsApp2
                 {
                     Control control = tableLayoutPanel.GetControlFromPosition(col, row);
 
-                    if (control != null && control.Visible)
+                    if (control != null && control.Visible) //обработка исключений
                     {
                         // Создаем новый Label с такими же параметрами
                         Label newLabel = new Label();
@@ -329,7 +393,6 @@ namespace WindowsFormsApp2
                     }
                 }
             }
-
             tableLayoutPanel.RowCount = newRow + 1; // Обновляем RowCount после добавления новых элементов
             // нужно, чтобы не добавлялись цифры в старые label, только в новые 
         }
@@ -338,7 +401,7 @@ namespace WindowsFormsApp2
         {
             foreach (Control control in tableLayoutPanel.Controls)
             {
-                if (control is Label label && label.Visible)
+                if (control is Label label && label.Visible) //является ли control экземпляром класса
                 {
                     // Если хоть один видимый Label найден, игра еще не закончена
                     return false;
