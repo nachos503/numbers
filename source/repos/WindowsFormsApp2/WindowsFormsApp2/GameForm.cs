@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Data;
+using System.Data.SQLite;
 using System.Linq;
+using System.Text;
 using System.Collections.Generic;
+using System.IO;
 
 namespace WindowsFormsApp2
 {
@@ -13,6 +17,142 @@ namespace WindowsFormsApp2
         private int[,] matrix;
         private Label scoreLabel; // Поле для Label с счетом
 
+        private DatabaseManager databaseManager;
+
+        public GameForm()
+        {
+
+            string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            databaseManager = new DatabaseManager("Game.db");
+
+            string dbFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Game.db");
+
+            databaseManager = new DatabaseManager(dbFilePath);
+        }
+
+        public void SaveGameDataToDatabase(string tableLayoutPanelData, int playerScore, int RowCount)
+        {
+            // Вместо передачи RowCount в аргументах, просто получим его из TableLayoutPanel
+            tableLayoutPanelData = SerializeTableLayoutPanelData();
+            playerScore = score;
+
+            // Также просто получим значение RowCount из TableLayoutPanel
+            RowCount = tableLayoutPanel.RowCount;
+
+            databaseManager.SaveGameData(tableLayoutPanelData, playerScore, RowCount);
+        }
+
+        private string SerializeTableLayoutPanelData()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (Control control in tableLayoutPanel.Controls)
+            {
+                if (control is Label label)
+                {
+                    if (label.Visible == false) { label.Text = "0"; }
+                    sb.Append(label.Text);
+                    sb.Append(","); // Разделитель между данными 
+                }
+            }
+
+            // Удалить последний разделитель, если он есть
+            if (sb.Length > 0)
+            {
+                sb.Length -= 1;
+            }
+
+            return sb.ToString();
+        }
+public void LoadGameDataFromDatabase()
+{
+    var loadedData = databaseManager.LoadGameData();
+
+    if (loadedData != (null, null, null))
+    {
+        string tableLayoutPanelData = loadedData.Item1;
+        int playerScore = loadedData.Item2;
+        int rowCount = loadedData.Item3;
+
+        // Удалите существующую таблицу, если она есть
+        if (tableLayoutPanel != null)
+        {
+            Form.Controls.Remove(tableLayoutPanel);
+            tableLayoutPanel.Dispose();
+        }
+
+        // Создайте новую таблицу
+        tableLayoutPanel = new TableLayoutPanel();
+        tableLayoutPanel.Dock = DockStyle.Fill;
+
+        // Установите значение RowCount для новой таблицы
+        tableLayoutPanel.RowCount = rowCount;
+        tableLayoutPanel.ColumnCount = 7; // Замените на желаемое количество столбцов
+
+
+        Form.Controls.Add(tableLayoutPanel);
+
+        DeserializeTableLayoutPanelData(tableLayoutPanelData, rowCount);
+
+        score = playerScore;
+        scoreLabel.Text = "Счёт: " + score.ToString();
+    }
+    else
+    {
+        MessageBox.Show("Нет сохраненных данных.");
+    }
+}
+
+private void DeserializeTableLayoutPanelData(string data, int rowCount)
+{
+    string[] elements = data.Split(',');
+    int elementIndex = 0;
+
+    // Создаем новый TableLayoutPanel с теми же параметрами
+    TableLayoutPanel newTableLayoutPanel = new TableLayoutPanel();
+    newTableLayoutPanel.Dock = tableLayoutPanel.Dock;
+    newTableLayoutPanel.RowCount = rowCount;
+    newTableLayoutPanel.ColumnCount = tableLayoutPanel.ColumnCount;
+
+    // Устанавливаем стиль для всех столбцов, чтобы они не скрывались
+    for (int col = 0; col < newTableLayoutPanel.ColumnCount; col++)
+    {
+        newTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30));
+    }
+
+    for (int row = 0; row < rowCount; row++)
+    {
+        for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+        {
+            if (elementIndex < elements.Length)
+            {
+                Label label = new Label();
+                label.Text = elements[elementIndex];
+                SetLabelColor(label);
+                label.AutoSize = true;
+                label.TextAlign = ContentAlignment.MiddleCenter;
+                label.Font = new Font("Arial", 16, FontStyle.Bold);
+
+                if (label.Text == "0")
+                {
+                    label.Visible = false;
+                }
+
+                newTableLayoutPanel.Controls.Add(label, col, row);
+                label.Click += new EventHandler(label_Click);
+                elementIndex++;
+            }
+        }
+    }
+
+    // Удалить старый TableLayoutPanel и заменить его на новый
+    Form.Controls.Remove(tableLayoutPanel);
+    tableLayoutPanel.Dispose();
+    tableLayoutPanel = newTableLayoutPanel;
+    Form.Controls.Add(tableLayoutPanel);
+}
+
         public void Initialize()
         {
             InitializeMatrix();
@@ -20,7 +160,7 @@ namespace WindowsFormsApp2
             InitializeTableLayoutPanel();
             PopulateTableLayoutPanel();
         }
-
+        
         private void InitializeMatrix()
         {
             Random random = new Random();
@@ -46,6 +186,8 @@ namespace WindowsFormsApp2
             CreateScoreBoard();
             CreateScoreBoardButton();
             CreateHelpButton();
+            CreateSaveButton();
+            CreateLoadButton();
         }
 
         private void CreateAddButton()
@@ -54,10 +196,40 @@ namespace WindowsFormsApp2
             addButton.Text = "Добавить цифры";
             addButton.Location = new Point(250, 50);
             addButton.AutoSize = true;
-            addButton.Click += (sender, e) => AddVisibleElementsToTable();
+            addButton.Click += (sender, e) =>   AddVisibleElementsToTable();
 
             // Добавляем кнопку на форму
             Form.Controls.Add(addButton);
+        }
+
+        private void CreateLoadButton()
+        {
+            Button loadButton = new Button();
+            loadButton.Text = "Загрузить данные";
+            loadButton.Location = new Point(250, 170);
+            loadButton.AutoSize = true;
+            loadButton.Click += (sender, e) => LoadGameDataFromDatabase();
+            Form.Controls.Add(loadButton);
+        }
+
+        private void CreateSaveButton()
+        {
+            Button saveButton = new Button();
+            saveButton.Text = "Сохранить игру";
+            saveButton.Location = new Point(250, 140); // Расположение кнопки
+            saveButton.AutoSize = true;
+
+            // Добавляем обработчик события Click для кнопки сохранения
+            saveButton.Click += (sender, e) =>
+            {
+                string tableLayoutPanelData = SerializeTableLayoutPanelData(); 
+                int playerScore = score; // Здесь используется текущий счет игрока
+                SaveGameDataToDatabase(tableLayoutPanelData, playerScore, tableLayoutPanel.RowCount);
+            };
+
+
+            // Добавляем кнопку на форму
+            Form.Controls.Add(saveButton);
         }
 
         private void CreateScoreBoard()
@@ -173,6 +345,7 @@ namespace WindowsFormsApp2
                     break;
             }
         }
+        
 
         private Label firstClickedLabel;
         private Label secondClickedLabel;
@@ -372,9 +545,6 @@ namespace WindowsFormsApp2
                         newLabel.TextAlign = ContentAlignment.MiddleCenter;
                         newLabel.Font = new Font("Arial", 16, FontStyle.Bold);
 
-                        // Устанавливаем минимальную ширину для текущего столбца
-                        tableLayoutPanel.ColumnStyles[col] = new ColumnStyle(SizeType.Absolute, 30); // Заменить 30 на минимальную ширину
-
                         // Добавляем новый Label в конец таблицы в новой строке и текущем столбце
                         tableLayoutPanel.Controls.Add(newLabel, newCol, newRow);
 
@@ -421,6 +591,66 @@ namespace WindowsFormsApp2
             scoreLabel.Text = "Счёт: " + score.ToString();
         }
 
+   }
+
+
+
+
+
+public class DatabaseManager
+{
+    private string connectionString;
+
+    public DatabaseManager(string databaseFilePath)
+    {
+        connectionString = $"Data Source={databaseFilePath};Version=3;";
     }
 
-}
+    public void SaveGameData(string tableLayoutPanelData, int playerScore, int RowCount)
+    {
+        using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+        {
+            connection.Open();
+
+            using (SQLiteCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "INSERT INTO GameData (TableLayoutPanelData, PlayerScore, RowCount) VALUES (@TableLayoutPanelData, @PlayerScore, @RowCount)";
+                command.Parameters.AddWithValue("@TableLayoutPanelData", tableLayoutPanelData);
+                command.Parameters.AddWithValue("@PlayerScore", playerScore);
+                command.Parameters.AddWithValue("@RowCount", RowCount);
+
+                command.ExecuteNonQuery();
+            }
+        }
+    }
+
+    public (string tableLayoutPanelData, int playerScore, int RowCount) LoadGameData()
+        {
+            string tableLayoutPanelData = null;
+            int playerScore = 0;
+            int RowCount = 0;
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SQLiteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT TableLayoutPanelData, PlayerScore, RowCount FROM GameData ORDER BY Id DESC LIMIT 1";
+
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            tableLayoutPanelData = reader.GetString(0);
+                            playerScore = reader.GetInt32(1);
+                            RowCount = reader.GetInt32(2);
+                        }
+                    }
+                }
+            }
+
+            return (tableLayoutPanelData, playerScore, RowCount);
+        }
+        }
+        }

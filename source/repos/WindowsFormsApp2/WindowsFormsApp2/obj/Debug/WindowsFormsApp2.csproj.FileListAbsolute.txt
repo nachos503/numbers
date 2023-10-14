@@ -65,3 +65,16 @@ C:\Users\user1\Source\Repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsA
 C:\Users\user1\Source\Repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.csproj.CoreCompileInputs.cache
 C:\Users\user1\Source\Repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.exe
 C:\Users\user1\Source\Repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.pdb
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\x86\sqlite3.dll
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\x64\sqlite3.dll
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\EntityFramework.dll
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\Newtonsoft.Json.dll
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\System.Data.SQLite.dll
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\System.Data.SQLite.EF6.dll
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\System.Data.SQLite.Linq.dll
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\EntityFramework.xml
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\Newtonsoft.Json.xml
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\bin\Debug\System.Data.SQLite.xml
+C:\Users\user1\source\repos\numbers3\source\repos\WindowsFormsApp2\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.csproj.CopyComplete
