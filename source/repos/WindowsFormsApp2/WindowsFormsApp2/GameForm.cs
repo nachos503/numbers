@@ -17,31 +17,36 @@ namespace WindowsFormsApp2
         private int[,] matrix;
         private Label scoreLabel; // Поле для Label с счетом
 
-        private DatabaseManager databaseManager;
+        private databaseManager databaseManager;
 
         public GameForm()
         {
 
             string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            databaseManager = new DatabaseManager("Game.db");
+            databaseManager = new databaseManager("Game.db");
 
             string dbFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Game.db");
 
-            databaseManager = new DatabaseManager(dbFilePath);
+            databaseManager = new databaseManager(dbFilePath);
         }
 
-        public void SaveGameDataToDatabase(string tableLayoutPanelData, int playerScore, int RowCount)
+        public void SaveGameDataToDatabase(string tableLayoutPanelData, int playerScore, int RowCount, string Username)
         {
+            
             // Вместо передачи RowCount в аргументах, просто получим его из TableLayoutPanel
             tableLayoutPanelData = SerializeTableLayoutPanelData();
             playerScore = score;
 
+
+
             // Также просто получим значение RowCount из TableLayoutPanel
             RowCount = tableLayoutPanel.RowCount;
 
-            databaseManager.SaveGameData(tableLayoutPanelData, playerScore, RowCount);
+            databaseManager.SaveGameData(tableLayoutPanelData, playerScore, RowCount, Username);
         }
+
+
 
         private string SerializeTableLayoutPanelData()
         {
@@ -65,93 +70,118 @@ namespace WindowsFormsApp2
 
             return sb.ToString();
         }
-public void LoadGameDataFromDatabase()
-{
-    var loadedData = databaseManager.LoadGameData();
-
-    if (loadedData != (null, null, null))
-    {
-        string tableLayoutPanelData = loadedData.Item1;
-        int playerScore = loadedData.Item2;
-        int rowCount = loadedData.Item3;
-
-        // Удалите существующую таблицу, если она есть
-        if (tableLayoutPanel != null)
+        public void LoadGameDataFromDatabase()
         {
-            Form.Controls.Remove(tableLayoutPanel);
-            tableLayoutPanel.Dispose();
-        }
+            var loadedData = databaseManager.LoadGameData();
 
-        // Создайте новую таблицу
-        tableLayoutPanel = new TableLayoutPanel();
-        tableLayoutPanel.Dock = DockStyle.Fill;
-
-        // Установите значение RowCount для новой таблицы
-        tableLayoutPanel.RowCount = rowCount;
-        tableLayoutPanel.ColumnCount = 7; // Замените на желаемое количество столбцов
-
-
-        Form.Controls.Add(tableLayoutPanel);
-
-        DeserializeTableLayoutPanelData(tableLayoutPanelData, rowCount);
-
-        score = playerScore;
-        scoreLabel.Text = "Счёт: " + score.ToString();
-    }
-    else
-    {
-        MessageBox.Show("Нет сохраненных данных.");
-    }
-}
-
-private void DeserializeTableLayoutPanelData(string data, int rowCount)
-{
-    string[] elements = data.Split(',');
-    int elementIndex = 0;
-
-    // Создаем новый TableLayoutPanel с теми же параметрами
-    TableLayoutPanel newTableLayoutPanel = new TableLayoutPanel();
-    newTableLayoutPanel.Dock = tableLayoutPanel.Dock;
-    newTableLayoutPanel.RowCount = rowCount;
-    newTableLayoutPanel.ColumnCount = tableLayoutPanel.ColumnCount;
-
-    // Устанавливаем стиль для всех столбцов, чтобы они не скрывались
-    for (int col = 0; col < newTableLayoutPanel.ColumnCount; col++)
-    {
-        newTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30));
-    }
-
-    for (int row = 0; row < rowCount; row++)
-    {
-        for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
-        {
-            if (elementIndex < elements.Length)
+            if (loadedData != (null, null, null))
             {
-                Label label = new Label();
-                label.Text = elements[elementIndex];
-                SetLabelColor(label);
-                label.AutoSize = true;
-                label.TextAlign = ContentAlignment.MiddleCenter;
-                label.Font = new Font("Arial", 16, FontStyle.Bold);
+                string tableLayoutPanelData = loadedData.Item1;
+                int playerScore = loadedData.Item2;
+                int rowCount = loadedData.Item3;
 
-                if (label.Text == "0")
+                // Удалите существующую таблицу, если она есть
+                if (tableLayoutPanel != null)
                 {
-                    label.Visible = false;
+                    Form.Controls.Remove(tableLayoutPanel);
+                    tableLayoutPanel.Dispose();
                 }
 
-                newTableLayoutPanel.Controls.Add(label, col, row);
-                label.Click += new EventHandler(label_Click);
-                elementIndex++;
+                // Создайте новую таблицу
+                tableLayoutPanel = new TableLayoutPanel();
+                tableLayoutPanel.Dock = DockStyle.Fill;
+
+                // Установите значение RowCount для новой таблицы
+                tableLayoutPanel.RowCount = rowCount;
+                tableLayoutPanel.ColumnCount = 7; // Замените на желаемое количество столбцов
+
+
+                Form.Controls.Add(tableLayoutPanel);
+
+                DeserializeTableLayoutPanelData(tableLayoutPanelData, rowCount);
+
+                score = playerScore;
+                scoreLabel.Text = "Счёт: " + score.ToString();
+            }
+            else
+            {
+                MessageBox.Show("Нет сохраненных данных.");
             }
         }
-    }
 
-    // Удалить старый TableLayoutPanel и заменить его на новый
-    Form.Controls.Remove(tableLayoutPanel);
-    tableLayoutPanel.Dispose();
-    tableLayoutPanel = newTableLayoutPanel;
-    Form.Controls.Add(tableLayoutPanel);
-}
+        public void LoadLeaderboardFromDatabase()
+        {
+            var loadedLeaderboard = databaseManager.LoadLeaderboard();
+
+            if (loadedLeaderboard.Count > 0)
+            {
+                string leaderboardMessage = "Таблица лидеров:\n";
+
+                foreach (var leader in loadedLeaderboard)
+                {
+                    string Username = leader.Username;
+                    int playerScore = leader.playerScore;
+
+                    leaderboardMessage += $"Имя: {Username}, Счёт: {playerScore}\n";
+                }
+
+                MessageBox.Show(leaderboardMessage);
+            }
+            else
+            {
+                MessageBox.Show("Таблица лидеров пуста.");
+            }
+        }
+
+
+        private void DeserializeTableLayoutPanelData(string data, int rowCount)
+        {
+            string[] elements = data.Split(',');
+            int elementIndex = 0;
+
+            // Создаем новый TableLayoutPanel с теми же параметрами
+            TableLayoutPanel newTableLayoutPanel = new TableLayoutPanel();
+            newTableLayoutPanel.Dock = tableLayoutPanel.Dock;
+            newTableLayoutPanel.RowCount = rowCount;
+            newTableLayoutPanel.ColumnCount = tableLayoutPanel.ColumnCount;
+
+            // Устанавливаем стиль для всех столбцов, чтобы они не скрывались
+            for (int col = 0; col < newTableLayoutPanel.ColumnCount; col++)
+            {
+                newTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30));
+            }
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+                {
+                    if (elementIndex < elements.Length)
+                    {
+                        Label label = new Label();
+                        label.Text = elements[elementIndex];
+                        SetLabelColor(label);
+                        label.AutoSize = true;
+                        label.TextAlign = ContentAlignment.MiddleCenter;
+                        label.Font = new Font("Arial", 16, FontStyle.Bold);
+
+                        if (label.Text == "0")
+                        {
+                            label.Visible = false;
+                        }
+
+                        newTableLayoutPanel.Controls.Add(label, col, row);
+                        label.Click += new EventHandler(label_Click);
+                        elementIndex++;
+                    }
+                }
+            }
+
+            // Удалить старый TableLayoutPanel и заменить его на новый
+            Form.Controls.Remove(tableLayoutPanel);
+            tableLayoutPanel.Dispose();
+            tableLayoutPanel = newTableLayoutPanel;
+            Form.Controls.Add(tableLayoutPanel);
+        }
 
         public void Initialize()
         {
@@ -160,7 +190,7 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
             InitializeTableLayoutPanel();
             PopulateTableLayoutPanel();
         }
-        
+
         private void InitializeMatrix()
         {
             Random random = new Random();
@@ -180,23 +210,84 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
             Form = new Form();
             Form.Size = new System.Drawing.Size(1920, 1080);
             Form.BackColor = System.Drawing.Color.White;
-            Form.Text = "Циферки онлайн без смс и регистрации";
+            Form.Text = "Циферки оффлайн с смс и регистрацией";
 
             CreateAddButton();
             CreateScoreBoard();
             CreateScoreBoardButton();
             CreateHelpButton();
-            CreateSaveButton();
             CreateLoadButton();
+            CreateTextBox();
+
         }
 
+       private TextBox nameTextBox;
+        private Button saveButton;
+        private string Username;
+        public void CreateTextBox()
+        {
+            
+            nameTextBox = new TextBox();
+            nameTextBox.Location = new Point(400, 50);
+            nameTextBox.Size = new Size(200, 20);
+            nameTextBox.Text = "Введите имя";
+            nameTextBox.Click += NameTextBox_Click;
+
+            saveButton = new Button();
+            saveButton.Text = "Сохранить игру";
+            saveButton.Location = new Point(400, 80);
+            saveButton.Click += SaveButton_Click;
+
+            Form.Controls.Add(nameTextBox);
+            Form.Controls.Add(saveButton);
+
+        }
+
+        private void NameTextBox_Click(object sender, EventArgs e)
+        {
+            nameTextBox.Text = "";
+        }
+
+        private void HelpButtonText(object sender, EventArgs e) //обработка клика и вывод текста
+        {
+            MessageBox.Show("-------------------------------| ПРАВИЛА ИГРЫ |-------------------------------" +
+                "\r\n\r\nУдалять можно одинаковые числа (или их сумма равна 10), которые находятся на одной строке или столбце, при условии, что между ними нет других чисел " +
+                "\r\n\r\nИгра заканчивается тогда, когда удалите все числа на поле");
+        }
+        private void CreateHelpButton()
+        {
+            Button HelpButton = new Button();
+            HelpButton.Text = "Помощь";
+            HelpButton.Location = new Point(250, 110);
+            HelpButton.AutoSize = true;
+            // Добавляем обработчик события нажатия на кнопку
+            HelpButton.Click += new EventHandler(HelpButtonText);
+            //Добавляем кнопку на форму
+            Form.Controls.Add(HelpButton);
+        }
+
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            // Получаем имя игрока из TextBox
+           Username = nameTextBox.Text;
+
+            if (!string.IsNullOrEmpty(Username))
+            {
+                SaveGameDataToDatabase(SerializeTableLayoutPanelData(), score, tableLayoutPanel.RowCount, Username);
+                MessageBox.Show("Игра сохранена.");
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, введите ваше имя перед сохранением игры.");
+            }
+        }
         private void CreateAddButton()
         {
             Button addButton = new Button();
             addButton.Text = "Добавить цифры";
             addButton.Location = new Point(250, 50);
             addButton.AutoSize = true;
-            addButton.Click += (sender, e) =>   AddVisibleElementsToTable();
+            addButton.Click += (sender, e) => AddVisibleElementsToTable();
 
             // Добавляем кнопку на форму
             Form.Controls.Add(addButton);
@@ -206,35 +297,15 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
         {
             Button loadButton = new Button();
             loadButton.Text = "Загрузить данные";
-            loadButton.Location = new Point(250, 170);
+            loadButton.Location = new Point(250, 140);
             loadButton.AutoSize = true;
             loadButton.Click += (sender, e) => LoadGameDataFromDatabase();
             Form.Controls.Add(loadButton);
         }
 
-        private void CreateSaveButton()
-        {
-            Button saveButton = new Button();
-            saveButton.Text = "Сохранить игру";
-            saveButton.Location = new Point(250, 140); // Расположение кнопки
-            saveButton.AutoSize = true;
-
-            // Добавляем обработчик события Click для кнопки сохранения
-            saveButton.Click += (sender, e) =>
-            {
-                string tableLayoutPanelData = SerializeTableLayoutPanelData(); 
-                int playerScore = score; // Здесь используется текущий счет игрока
-                SaveGameDataToDatabase(tableLayoutPanelData, playerScore, tableLayoutPanel.RowCount);
-            };
-
-
-            // Добавляем кнопку на форму
-            Form.Controls.Add(saveButton);
-        }
-
         private void CreateScoreBoard()
         {
-                    // Создаем или обновляем Label для отображения счета
+            // Создаем или обновляем Label для отображения счета
             if (scoreLabel == null)
             {
                 scoreLabel = new Label();
@@ -245,8 +316,8 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
                 scoreLabel.Text = "Счёт: " + score;
 
                 // Добавляем Label на форму
-                Form.Controls.Add(scoreLabel); 
-                
+                Form.Controls.Add(scoreLabel);
+
             }
         }
 
@@ -257,19 +328,17 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
             ScoreBoardButton.Location = new Point(250, 80);
             ScoreBoardButton.AutoSize = true;
 
+            ScoreBoardButton.Click += ScoreBoardButton_Click;
+
+
+
             //  Добавляем кнопку на форму
             Form.Controls.Add(ScoreBoardButton);
         }
 
-        private void CreateHelpButton()
+        private void ScoreBoardButton_Click(object sender, EventArgs e)
         {
-            Button HelpButton = new Button();
-            HelpButton.Text = "Помощь";
-            HelpButton.Location = new Point(250, 110);
-            HelpButton.AutoSize = true;
-
-            //Добавляем кнопку на форму
-            Form.Controls.Add(HelpButton);
+            LoadLeaderboardFromDatabase();
         }
 
         private void InitializeTableLayoutPanel()
@@ -345,14 +414,14 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
                     break;
             }
         }
-        
+
 
         private Label firstClickedLabel;
         private Label secondClickedLabel;
         private Point previous_Click;   //класс для работы с координатами
         private int sum = 0;
         private int score = 0; // Поле для хранения счета
- 
+
 
         private void label_Click(object sender, EventArgs e)
         {
@@ -385,7 +454,7 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
                     firstClickedLabel.Visible = false;
                     secondClickedLabel.Visible = false;
 
-                    if(IsGameFinished())
+                    if (IsGameFinished())
                     {
                         MessageBox.Show($"Игра окончена!\n Счёт: {score}");
                     }
@@ -441,7 +510,7 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
             foreach (Control control in tableLayoutPanel.Controls)
             {
                 // Проверяем, находится ли control в той же строке, что и firstClickedLabel, и не содержит ли control текст, отличный от "  "
-                if ((rowIndex1 == rowIndex2 && (AreNumbersInBetweenByRow(firstClickedLabel,secondClickedLabel)))
+                if ((rowIndex1 == rowIndex2 && (AreNumbersInBetweenByRow(firstClickedLabel, secondClickedLabel)))
                     || ((columnIndex1 == columnIndex2) && (AreNumbersInBetweenByColumn(firstClickedLabel, secondClickedLabel))))
                 {
                     //устанавливаем флаг в true и выходим из цикла
@@ -462,9 +531,9 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
             {
                 return true;
             }
-                if (tableLayoutPanel.GetRow(firstClickedLabel) < tableLayoutPanel1.GetRow(secondClickedLabel)) //сравниваем какой раньше встречается
+            if (tableLayoutPanel.GetRow(firstClickedLabel) < tableLayoutPanel1.GetRow(secondClickedLabel)) //сравниваем какой раньше встречается
             {
-                for (int row = tableLayoutPanel1.GetRow(firstClickedLabel)+1; row < tableLayoutPanel.GetRow(secondClickedLabel); row++) // идем от первого до второго клика
+                for (int row = tableLayoutPanel1.GetRow(firstClickedLabel) + 1; row < tableLayoutPanel.GetRow(secondClickedLabel); row++) // идем от первого до второго клика
                 {
                     Label labelBetween = tableLayoutPanel.GetControlFromPosition(columnNumber, row) as Label; //переводим конкуретную позицию таблицу в тип Label 
                     if (labelBetween != null && labelBetween.Visible) // если не null и если отображается элемент управления (не удален)
@@ -475,7 +544,7 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
             }
             else if (tableLayoutPanel.GetRow(firstClickedLabel) > tableLayoutPanel1.GetRow(secondClickedLabel))
             {
-                for (int row = tableLayoutPanel1.GetRow(secondClickedLabel)+1; row < tableLayoutPanel.GetRow(firstClickedLabel); row++) // идем от первого до второго клика
+                for (int row = tableLayoutPanel1.GetRow(secondClickedLabel) + 1; row < tableLayoutPanel.GetRow(firstClickedLabel); row++) // идем от первого до второго клика
                 {
                     Label labelBetween = tableLayoutPanel1.GetControlFromPosition(columnNumber, row) as Label; //переводим конкуретную позицию таблицу в тип Label 
                     if (labelBetween != null && labelBetween.Visible) // если не null и если виден
@@ -485,7 +554,7 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
                 }
 
             }
-             return true;
+            return true;
         }
 
         private bool AreNumbersInBetweenByRow(Label firstlabelclick, Label secondlabelclick)
@@ -500,7 +569,7 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
             }
             if (tableLayoutPanel.GetColumn(firstlabelclick) < tableLayoutPanel1.GetColumn(secondlabelclick))
             {
-                for (int column = tableLayoutPanel.GetColumn(firstlabelclick)+1; column < tableLayoutPanel1.GetColumn(secondlabelclick); column++)
+                for (int column = tableLayoutPanel.GetColumn(firstlabelclick) + 1; column < tableLayoutPanel1.GetColumn(secondlabelclick); column++)
                 {
                     Label labelBetween = tableLayoutPanel.GetControlFromPosition(column, rowNumber) as Label;
                     if (labelBetween != null && labelBetween.Visible)
@@ -511,7 +580,7 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
             }
             else if (tableLayoutPanel.GetColumn(firstlabelclick) > tableLayoutPanel1.GetColumn(secondlabelclick))
             {
-                for (int column = tableLayoutPanel1.GetColumn(secondlabelclick)+1; column < tableLayoutPanel.GetColumn(firstlabelclick); column++)
+                for (int column = tableLayoutPanel1.GetColumn(secondlabelclick) + 1; column < tableLayoutPanel.GetColumn(firstlabelclick); column++)
                 {
                     Label labelBetween = tableLayoutPanel1.GetControlFromPosition(column, rowNumber) as Label;
                     if (labelBetween != null && labelBetween.Visible)
@@ -562,7 +631,7 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
                     }
                 }
             }
-             tableLayoutPanel.RowCount = newRow + 1; // Обновляем RowCount после добавления новых элементов
+            tableLayoutPanel.RowCount = newRow + 1; // Обновляем RowCount после добавления новых элементов
             // нужно, чтобы не добавлялись цифры в старые label, только в новые 
         }
 
@@ -585,46 +654,44 @@ private void DeserializeTableLayoutPanelData(string data, int rowCount)
         private void UpdateScore(int pointsToAdd)
         {
             // Увеличиваем счет на указанное количество очков
-            score += pointsToAdd; 
+            score += pointsToAdd;
 
             // Обновляем текст Label с текущим счетом
             scoreLabel.Text = "Счёт: " + score.ToString();
         }
 
-   }
-
-
-
-
-
-public class DatabaseManager
-{
-    private string connectionString;
-
-    public DatabaseManager(string databaseFilePath)
-    {
-        connectionString = $"Data Source={databaseFilePath};Version=3;";
     }
 
-    public void SaveGameData(string tableLayoutPanelData, int playerScore, int RowCount)
+    public class databaseManager
     {
-        using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+        private string connectionString;
+
+        public databaseManager(string databaseFilePath)
         {
-            connection.Open();
+            connectionString = $"Data Source={databaseFilePath};Version=3;";
+        }
 
-            using (SQLiteCommand command = connection.CreateCommand())
+        public void SaveGameData(string tableLayoutPanelData, int playerScore, int RowCount, string Username)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
-                command.CommandText = "INSERT INTO GameData (TableLayoutPanelData, PlayerScore, RowCount) VALUES (@TableLayoutPanelData, @PlayerScore, @RowCount)";
-                command.Parameters.AddWithValue("@TableLayoutPanelData", tableLayoutPanelData);
-                command.Parameters.AddWithValue("@PlayerScore", playerScore);
-                command.Parameters.AddWithValue("@RowCount", RowCount);
+                connection.Open();
 
-                command.ExecuteNonQuery();
+                using (SQLiteCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = "INSERT INTO GameData (TableLayoutPanelData, PlayerScore, RowCount, Username) VALUES (@TableLayoutPanelData, @PlayerScore, @RowCount, @Username)";
+                    command.Parameters.AddWithValue("@TableLayoutPanelData", tableLayoutPanelData);
+                    command.Parameters.AddWithValue("@PlayerScore", playerScore);
+                    command.Parameters.AddWithValue("@RowCount", RowCount);
+                    command.Parameters.AddWithValue("@Username", Username);
+
+
+                    command.ExecuteNonQuery();
+                }
             }
         }
-    }
 
-    public (string tableLayoutPanelData, int playerScore, int RowCount) LoadGameData()
+        public (string tableLayoutPanelData, int playerScore, int RowCount) LoadGameData()
         {
             string tableLayoutPanelData = null;
             int playerScore = 0;
@@ -652,5 +719,33 @@ public class DatabaseManager
 
             return (tableLayoutPanelData, playerScore, RowCount);
         }
+        public List<(string Username, int playerScore)> LoadLeaderboard()
+        {
+            List<(string Username, int playerScore)> leaderboard = new List<(string, int)>();
+
+            string sql = "SELECT Username, playerScore FROM GameData ORDER BY playerScore DESC;";
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand(sql, connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string username = reader["Username"].ToString();
+                            int playerScore = Convert.ToInt32(reader["playerScore"]);
+                            leaderboard.Add((username, playerScore));
+                        }
+                    }
+                }
+            }
+
+            return leaderboard;
         }
-        }
+
+    }
+}
+
