@@ -10,7 +10,7 @@ using System.IO;
 
 namespace WindowsFormsApp2
 {
-    class GameForm
+    class GameForm : Form
     {
         public Form Form { get; private set; }
         private TableLayoutPanel tableLayoutPanel;
@@ -185,12 +185,20 @@ namespace WindowsFormsApp2
 
         public void Initialize()
         {
+           
             InitializeMatrix();
             InitializeForm();
+
+            //InitializeUsername();
+
             InitializeTableLayoutPanel();
             PopulateTableLayoutPanel();
         }
 
+        private void InitializeUsername()
+        {
+
+        }
         private void InitializeMatrix()
         {
             Random random = new Random();
@@ -212,18 +220,21 @@ namespace WindowsFormsApp2
             Form.BackColor = System.Drawing.Color.White;
             Form.Text = "Циферки оффлайн с смс и регистрацией";
 
-            CreateAddButton();
-            CreateScoreBoard();
-            CreateScoreBoardButton();
-            CreateHelpButton();
-            CreateLoadButton();
-            CreateTextBox();
-
+                
+                CreateAddButton();
+                CreateScoreBoard();
+                CreateScoreBoardButton();
+                CreateHelpButton();
+                CreateLoadButton();
+                CreateRestartButton();
+                CreateExitButton();
+            
         }
 
        private TextBox nameTextBox;
         private Button saveButton;
         private string Username;
+        private bool ClickFlag;
         public void CreateTextBox()
         {
             
@@ -234,13 +245,44 @@ namespace WindowsFormsApp2
             nameTextBox.Click += NameTextBox_Click;
 
             saveButton = new Button();
-            saveButton.Text = "Сохранить игру";
+            saveButton.Text = "Продолжить";
+            saveButton.AutoSize = true;
             saveButton.Location = new Point(400, 80);
             saveButton.Click += SaveButton_Click;
 
             Form.Controls.Add(nameTextBox);
             Form.Controls.Add(saveButton);
 
+        }
+
+      public void  CreateRestartButton()
+        {
+            Button restartButton = new Button();
+            restartButton.Text = "Перезапустить игру";
+            restartButton.AutoSize = true;
+           restartButton.Location = new Point(400, 110);
+            restartButton.Click += RestartButton_Click;
+            Form.Controls.Add(restartButton);
+        }
+
+        public void CreateExitButton()
+        {
+            Button exitButton = new Button();
+            exitButton.Text = "Выйти из игры";
+            exitButton.AutoSize = true;
+            exitButton.Location = new Point(400, 140);
+            exitButton.Click += ExitButton_Click;
+            Form.Controls.Add(exitButton);
+        }
+
+        private void ExitButton_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void RestartButton_Click(object sender, EventArgs e)
+        {
+            Application.Restart();
         }
 
         private void NameTextBox_Click(object sender, EventArgs e)
@@ -269,9 +311,13 @@ namespace WindowsFormsApp2
         private void SaveButton_Click(object sender, EventArgs e)
         {
             // Получаем имя игрока из TextBox
-           Username = nameTextBox.Text;
+            if (nameTextBox.Text != "")
+            {
+                Username = nameTextBox.Text;
+                ClickFlag = true;
+            }
 
-            if (!string.IsNullOrEmpty(Username))
+           /* if (!string.IsNullOrEmpty(Username))
             {
                 SaveGameDataToDatabase(SerializeTableLayoutPanelData(), score, tableLayoutPanel.RowCount, Username);
                 MessageBox.Show("Игра сохранена.");
@@ -279,7 +325,7 @@ namespace WindowsFormsApp2
             else
             {
                 MessageBox.Show("Пожалуйста, введите ваше имя перед сохранением игры.");
-            }
+            }*/
         }
         private void CreateAddButton()
         {
@@ -310,7 +356,7 @@ namespace WindowsFormsApp2
             {
                 scoreLabel = new Label();
                 scoreLabel.ForeColor = Color.Black;
-                scoreLabel.Font = new Font("Arial", 24, FontStyle.Bold);
+                scoreLabel.Font = new Font("Arial", 24);
                 scoreLabel.AutoSize = true;
                 scoreLabel.Location = new Point(280, 10); // Расположение Label с счетом
                 scoreLabel.Text = "Счёт: " + score;
@@ -371,7 +417,7 @@ namespace WindowsFormsApp2
 
                     label.AutoSize = true;
                     label.TextAlign = ContentAlignment.MiddleCenter;
-                    label.Font = new Font("Arial", 16, FontStyle.Bold);
+                    label.Font = new Font("Arial", 16);
 
                     tableLayoutPanel.Controls.Add(label, col, row);
 
@@ -433,13 +479,16 @@ namespace WindowsFormsApp2
             {
                 firstClickedLabel = label;
                 Console.WriteLine($"Первый клик сделан по {label.Text}");
+                label.Font = new Font("Arial", 16, FontStyle.Bold);
             }
             else if (firstClickedLabel != label)
             {
                 secondClickedLabel = label;
                 Console.WriteLine($"Второй клик сделан по {label.Text}");
+                secondClickedLabel.Font = new Font("Arial", 16, FontStyle.Bold);
                 if (firstClickedLabel.Text == secondClickedLabel.Text && mouseArgs.Location == previous_Click && mouseArgs != null && previous_Click != null) ///проверка на одинаковые числа
                 {
+                    label.Font = new Font("Arial", 16);
                     return;
                 }
                 previous_Click = mouseArgs.Location; // запоминаем координату клика 
@@ -453,6 +502,7 @@ namespace WindowsFormsApp2
                     // Скрытие двух Label
                     firstClickedLabel.Visible = false;
                     secondClickedLabel.Visible = false;
+
 
                     if (IsGameFinished())
                     {
@@ -483,13 +533,17 @@ namespace WindowsFormsApp2
                         else
                         {
                             Console.WriteLine("Числа не совпали");
+                            firstClickedLabel.Font = new Font("Arial", 16);
+                            secondClickedLabel.Font = new Font("Arial", 16);
                             firstClickedLabel = null;
                             secondClickedLabel = null;
+                      
                         }
 
                         //Сбрасываем значения, чтобы не забивались от неправильных кликов
                         firstClickedLabel = null;
                         secondClickedLabel = null;
+                       
                     }
                 }
                 firstClickedLabel = null;
@@ -612,7 +666,7 @@ namespace WindowsFormsApp2
                         SetLabelColor(newLabel);
                         newLabel.AutoSize = true;
                         newLabel.TextAlign = ContentAlignment.MiddleCenter;
-                        newLabel.Font = new Font("Arial", 16, FontStyle.Bold);
+                        newLabel.Font = new Font("Arial", 16);
 
                         // Добавляем новый Label в конец таблицы в новой строке и текущем столбце
                         tableLayoutPanel.Controls.Add(newLabel, newCol, newRow);
@@ -662,7 +716,7 @@ namespace WindowsFormsApp2
 
     }
 
-    public class databaseManager
+    public class databaseManager 
     {
         private string connectionString;
 
@@ -687,6 +741,20 @@ namespace WindowsFormsApp2
 
 
                     command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public bool IsPlayerNameAvailable(string playerName)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand("SELECT COUNT(*) FROM GameData WHERE Username = @Username", connection))
+                {
+                    command.Parameters.AddWithValue("@Username", playerName);
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count == 0; // Если count равно 0, имя не существует
                 }
             }
         }

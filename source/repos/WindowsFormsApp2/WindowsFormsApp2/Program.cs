@@ -8,16 +8,16 @@ using WindowsFormsApp2;
     {
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
 
-            GameForm gameForm = new GameForm();
-            gameForm.Initialize();// Запускает инициализацию методов
+        GameForm gameForm = new GameForm();
+        gameForm.Initialize();// Запускает инициализацию методов
 
-            Application.Run(gameForm.Form); // Запуск игры 
 
-            //Application.Restart();
-        }
+        Application.Run(gameForm.Form); // Запуск игры 
+        Application.Run(new SaveForm());
     }
+}
 
 
