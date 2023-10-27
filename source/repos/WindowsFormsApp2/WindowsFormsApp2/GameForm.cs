@@ -6,6 +6,9 @@ using System.IO;
 
 namespace WindowsFormsApp2
 {
+    /// <summary>
+    /// Класс GameForm основное окно игры
+    /// </summary>
     class GameForm : Form
     {
         public Form gameForm;
@@ -14,6 +17,10 @@ namespace WindowsFormsApp2
         protected Label scoreLabel; // Поле для Label с счетом
         protected User user; // Добавьте поле для хранения User
         protected databaseManager databaseManager;
+
+        /// <summary>
+        /// Конструктор иницилизации бд и привязка к пути файла
+        /// </summary>
         public GameForm()
         {
             databaseManager = new databaseManager("Game.db");
@@ -24,12 +31,18 @@ namespace WindowsFormsApp2
 
         }
 
-        // Метод, который будет вызываться для установки пользователя
+        /// <summary>
+        /// Метод для установки пользователя 
+        /// </summary>
+        /// <param name="user"></param>
         public void SetUser(User user)
         {
             this.user = user;
         }
 
+        /// <summary>
+        /// Метод иницилизации матрицы
+        /// </summary>
         protected void InitializeMatrix()
         {
             Random random = new Random();
@@ -44,6 +57,9 @@ namespace WindowsFormsApp2
             }
         }
 
+        /// <summary>
+        /// Перечисляемый тип для перечисления цветов
+        /// </summary>
         enum LabelColor
         {
             Black,
@@ -59,6 +75,10 @@ namespace WindowsFormsApp2
 
         }
 
+        /// <summary>
+        /// Метод установки цветов 
+        /// </summary>
+        /// <param name="label"></param>
         private void SetLabelColor(Label label)
         {
             if (Enum.TryParse(label.Text, out LabelColor color))
@@ -96,6 +116,9 @@ namespace WindowsFormsApp2
             }
         }
 
+        /// <summary>
+        /// Метод иницилизации игрового поля 
+        /// </summary>
         public void InitializeTableLayoutPanel()
         {
             tableLayoutPanel = new TableLayoutPanel();
@@ -105,13 +128,15 @@ namespace WindowsFormsApp2
             tableLayoutPanel.RowCount = 4;
             tableLayoutPanel.ColumnCount = 7;
 
-            // Устанавливаем минимальную ширину для каждого столбца
-            for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)
+            for (int col = 0; col < tableLayoutPanel.ColumnCount; col++)// Устанавливаем минимальную ширину для каждого столбца
             {
                 tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30));
             }
         }
 
+        /// <summary>
+        /// Метод заполнения игрового поля
+        /// </summary>
         protected void PopulateTableLayoutPanel()
         {
             for (int row = 0; row < 4; row++)
@@ -141,11 +166,14 @@ namespace WindowsFormsApp2
         private Label secondClickedLabel;
         protected int score = 0; // Поле для хранения счета
 
-
+        /// <summary>
+        /// Метод обработки клика и обработка логики игры
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void label_Click(object sender, EventArgs e)
         {
-            // Приводим sender к типу label для дальнейших взаимодействий
-            Label label = (Label)sender;
+            Label label = (Label)sender;// Приводим sender к типу label для дальнейших взаимодействий
 
             if (firstClickedLabel == null)
             {
@@ -159,12 +187,9 @@ namespace WindowsFormsApp2
 
                 if (firstClickedLabel.Text == secondClickedLabel.Text && Checking_Intersections())
                 {
-
                     UpdateScore(Convert.ToInt32(firstClickedLabel.Text) + Convert.ToInt32(secondClickedLabel.Text));
 
-                    // Скрытие двух Label
-
-                    firstClickedLabel.Visible = false;
+                    firstClickedLabel.Visible = false;// Скрытие двух Label
                     secondClickedLabel.Visible = false;
 
                     if (IsGameFinished())
@@ -199,10 +224,7 @@ namespace WindowsFormsApp2
                             firstClickedLabel = null;
                             secondClickedLabel = null;   
                         }
-
-                        //Сбрасываем значения, чтобы не забивались от неправильных кликов
-                       
-                        firstClickedLabel = null;
+                        firstClickedLabel = null;//Сбрасываем значения, чтобы не забивались от неправильных кликов
                         secondClickedLabel = null;
                         
                     }
@@ -217,12 +239,15 @@ namespace WindowsFormsApp2
             }
         }
 
+        /// <summary>
+        /// Проверка на наличие цифр между нажатыми цифрами
+        /// </summary>
+        /// <returns></returns>
         private bool Checking_Intersections()
         {
             TableLayoutPanel tableLayoutPanel = firstClickedLabel.Parent as TableLayoutPanel;
 
-            // Определяем индекс строки и столбца
-            int rowIndex1 = tableLayoutPanel.GetRow(firstClickedLabel);
+            int rowIndex1 = tableLayoutPanel.GetRow(firstClickedLabel);// Определяем индекс строки и столбца
             int columnIndex1 = tableLayoutPanel.GetColumn(firstClickedLabel);
             int rowIndex2 = tableLayoutPanel.GetRow(secondClickedLabel);
             int columnIndex2 = tableLayoutPanel.GetColumn(secondClickedLabel);
@@ -233,14 +258,18 @@ namespace WindowsFormsApp2
                 if ((rowIndex1 == rowIndex2 && (AreNumbersInBetweenByRow(firstClickedLabel, secondClickedLabel)))
                     || ((columnIndex1 == columnIndex2) && (AreNumbersInBetweenByColumn(firstClickedLabel, secondClickedLabel))))
                 {
-                    //устанавливаем флаг в true и выходим из цикла
                     return true;
                 }
             }
-            // Если не найдено препятствий, возвращаем false
             return false;
         }
 
+        /// <summary>
+        /// Метод проверки нахлждения цифр в одном столбце
+        /// </summary>
+        /// <param name="firstlabelclick"></param>
+        /// <param name="secondlabelclick"></param>
+        /// <returns></returns>
         private bool AreNumbersInBetweenByColumn(Label firstlabelclick, Label secondlabelclick) //провекра наличие препятсвий по столбцам
         {
             TableLayoutPanel tableLayoutPanel = firstClickedLabel.Parent as TableLayoutPanel;
@@ -277,10 +306,16 @@ namespace WindowsFormsApp2
             return true;
         }
 
+        /// <summary>
+        /// Метод проверки нахождения цифр в одной строке
+        /// </summary>
+        /// <param name="firstlabelclick"></param>
+        /// <param name="secondlabelclick"></param>
+        /// <returns></returns>
         private bool AreNumbersInBetweenByRow(Label firstlabelclick, Label secondlabelclick)
         {
-            // Получаем ссылки на tableLayoutPanel для использования label в GetRow итд
-            TableLayoutPanel tableLayoutPanel = firstlabelclick.Parent as TableLayoutPanel;
+            
+            TableLayoutPanel tableLayoutPanel = firstlabelclick.Parent as TableLayoutPanel;// Получаем ссылки на tableLayoutPanel для использования label в GetRow 
             TableLayoutPanel tableLayoutPanel1 = secondlabelclick.Parent as TableLayoutPanel;
 
             int rowNumber = tableLayoutPanel.GetRow(firstlabelclick);
@@ -314,6 +349,9 @@ namespace WindowsFormsApp2
             return true; // Возвращаем true, если не найдено видимых Label'ов между ними по строкам
         }
 
+        /// <summary>
+        /// Метод добавления новых элементов
+        /// </summary>
         protected void AddVisibleElementsToTable()
         {
             int newRow = tableLayoutPanel.RowCount; // Получить текущее количество строк
@@ -327,76 +365,96 @@ namespace WindowsFormsApp2
 
                     if (control != null && control.Visible) //если мы встречаем путое место, в которое можно вставить цифры
                     {
-                        // Создаем новый Label с такими же параметрами
-                        Label newLabel = new Label();
+                        Label newLabel = new Label();// Создаем новый Label с такими же параметрами
                         newLabel.Text = control.Text;
                         SetLabelColor(newLabel);
                         newLabel.AutoSize = true;
                         newLabel.TextAlign = ContentAlignment.MiddleCenter;
                         newLabel.Font = new Font("Arial", 16, FontStyle.Bold);
-
-                        // Добавляем новый Label в конец таблицы в новой строке и текущем столбце
-                        tableLayoutPanel.Controls.Add(newLabel, newCol, newRow);
+                
+                        tableLayoutPanel.Controls.Add(newLabel, newCol, newRow);// Добавляем новый Label в конец таблицы в новой строке и текущем столбце
 
                         newCol++; // Переходим к следующему столбцу
 
-                        if (newCol >= tableLayoutPanel.ColumnCount)
+                        if (newCol >= tableLayoutPanel.ColumnCount)// Если достигнут конец строки, переходим на следующую строку и сбрасываем счетчик столбцов
                         {
-                            // Если достигнут конец строки, переходим на следующую строку и сбрасываем счетчик столбцов
                             newRow++;
                             newCol = 0;
                         }
-
-                        // Привязываем обработчик события label_Click к новому Label
-                        newLabel.Click += new EventHandler(label_Click);
+                        newLabel.Click += new EventHandler(label_Click);// Привязываем обработчик события label_Click к новому Label
                     }
                 }
             }
             tableLayoutPanel.RowCount = newRow + 1; // Обновляем RowCount после добавления новых элементов
-            // нужно, чтобы не добавлялись цифры в старые label, только в новые 
+                                                    // нужно, чтобы не добавлялись цифры в старые label, только в новые 
         }
 
+        /// <summary>
+        /// Метод проверки конца игры
+        /// </summary>
+        /// <returns></returns>
         private bool IsGameFinished()
         {
             foreach (Control control in tableLayoutPanel.Controls)
             {
-                if (control is Label label && label.Visible) //является ли control экземпляром класса
+                if (control is Label label && label.Visible) // Если хоть один видимый Label найден, игра еще не закончена
                 {
-                    // Если хоть один видимый Label найден, игра еще не закончена
                     return false;
                 }
-            }
-
-            // Если все цифры стали невидимыми, игра закончена
-            return true;
+            } 
+            return true;// Если все цифры стали невидимыми, игра закончена
         }
 
-        // Метод для обновления счета и отображения его на форме
+        /// <summary>
+        /// Метод для обновления счета и отображения его на форме
+        /// </summary>
+        /// <param name="pointsToAdd"></param>
         private void UpdateScore(int pointsToAdd)
-        {
-            // Увеличиваем счет на указанное количество очков
-            score += pointsToAdd;
+        {            
+            score += pointsToAdd;// Увеличиваем счет на указанное количество очков
 
-            // Обновляем текст Label с текущим счетом
-            scoreLabel.Text = "Счёт: " + score.ToString();
+            scoreLabel.Text = "Счёт: " + score.ToString();// Обновляем текст Label с текущим счетом
         }
 
+        /// <summary>
+        /// Метод для получения экземпляра класса бд
+        /// </summary>
+        /// <returns></returns>
         public databaseManager GetDatabaseManager()
         {
             return databaseManager;
         }
 
+        /// <summary>
+        /// Метод временного сохранения данных
+        /// </summary>
+        /// <param name="tableLayoutPanelData"></param>
+        /// <param name="playerScore"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="username"></param>
         public void SaveGameDataTempToDatabase(string tableLayoutPanelData, int playerScore, int rowCount, string username)
         {
             databaseManager.SaveGameDataTemp(tableLayoutPanelData, playerScore, rowCount, username);
         }
 
+        /// <summary>
+        /// Метод сохранения данных
+        /// </summary>
+        /// <param name="tableLayoutPanelData"></param>
+        /// <param name="playerScore"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="username"></param>
         public void SaveGameDataToDatabase(string tableLayoutPanelData, int playerScore, int rowCount, string username)
         {
 
             databaseManager.SaveGameData(tableLayoutPanelData, playerScore, rowCount, username);
         }
 
+        /// <summary>
+        /// Метод сохранения данных таблицы лидеров
+        /// </summary>
+        /// <param name="playerScore"></param>
+        /// <param name="username"></param>
         public void SaveLeaderboardToDatabase(int playerScore, string username)
         {
             playerScore = score;
@@ -405,6 +463,10 @@ namespace WindowsFormsApp2
             databaseManager.SaveLeaderboard(playerScore, username);
         }
 
+        /// <summary>
+        /// Метод для сериализации данных
+        /// </summary>
+        /// <returns></returns>
         protected string SerializeTableLayoutPanelData()
         {
             StringBuilder sb = new StringBuilder();
@@ -420,16 +482,17 @@ namespace WindowsFormsApp2
 
                 }
             }
-
-            // Удалить последний разделитель, если он есть
-            if (sb.Length > 0)
+            if (sb.Length > 0)// Удалить последний разделитель, если он есть
             {
                 sb.Length -= 1;
             }
-
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Метод загрузки временных данных 
+        /// </summary>
+        /// <param name="playerName"></param>
         public void LoadGameDataFromDatabaseByUsernameTemp(string playerName)
         {
             var loadedData = databaseManager.LoadGameDataByUsernameTemp(playerName);
@@ -440,27 +503,21 @@ namespace WindowsFormsApp2
                 int playerScore = loadedData.Item2;
                 int rowCount = loadedData.Item3;
 
-                // Удаляем существующую таблицу, если она есть
-                if (tableLayoutPanel != null)
+                if (tableLayoutPanel != null)// Удаляем существующую таблицу, если она есть
                 {
                     gameForm.Controls.Remove(tableLayoutPanel);
                     tableLayoutPanel.Dispose();
                 }
 
-                // Создаём новую таблицу
-                tableLayoutPanel = new TableLayoutPanel();
+                tableLayoutPanel = new TableLayoutPanel();// Создаём новую таблицу
                 tableLayoutPanel.Dock = DockStyle.Fill;
 
-                // Установливаем значение RowCount для новой таблицы
-                tableLayoutPanel.RowCount = rowCount;
+                tableLayoutPanel.RowCount = rowCount;// Установливаем значение RowCount для новой таблицы
                 tableLayoutPanel.ColumnCount = 7;
-
 
                 gameForm.Controls.Add(tableLayoutPanel);
 
                 DeserializeTableLayoutPanelData(tableLayoutPanelData, rowCount);
-
-
 
                 score = playerScore;
                 scoreLabel.Text = "Счёт: " + score.ToString();
@@ -471,11 +528,13 @@ namespace WindowsFormsApp2
             }
         }
 
-
+        /// <summary>
+        /// Метод загрузки сохраненных данных
+        /// </summary>
+        /// <param name="playerName"></param>
         public void LoadGameDataFromDatabaseByUsername(string playerName)
         {
-            // Вызываем метод в databaseManager для получения данных из базы данных
-            var loadedData = databaseManager.LoadGameDataByUsername(playerName);
+            var loadedData = databaseManager.LoadGameDataByUsername(playerName);// Вызываем метод в databaseManager для получения данных из базы данных
 
             if (loadedData != null)
             {
@@ -489,7 +548,6 @@ namespace WindowsFormsApp2
                     tableLayoutPanel.Dispose();
                 }
 
-
                 tableLayoutPanel = new TableLayoutPanel();
                 tableLayoutPanel.Dock = DockStyle.Fill;
                 tableLayoutPanel.RowCount = rowCount;
@@ -508,6 +566,9 @@ namespace WindowsFormsApp2
             }
         }
 
+        /// <summary>
+        /// Метод данных таблицы лидеров
+        /// </summary>
         public void LoadLeaderboardFromDatabase()
         {
             var loadedLeaderboard = databaseManager.LoadLeaderboard();
@@ -532,21 +593,24 @@ namespace WindowsFormsApp2
             }
         }
 
+        /// <summary>
+        /// Метод десериализации
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="rowCount"></param>
         private void DeserializeTableLayoutPanelData(string data, int rowCount)
         {
             string[] elements = data.Split(',');
             int elementIndex = 0;
 
-            // Создаем новый TableLayoutPanel с теми же параметрами
-            TableLayoutPanel newTableLayoutPanel = new TableLayoutPanel();
+            TableLayoutPanel newTableLayoutPanel = new TableLayoutPanel(); // Создаем новый TableLayoutPanel с теми же параметрами
             newTableLayoutPanel.Dock = tableLayoutPanel.Dock;
             newTableLayoutPanel.RowCount = rowCount;
             newTableLayoutPanel.ColumnCount = tableLayoutPanel.ColumnCount;
 
-            // Устанавливаем стиль для всех столбцов, чтобы они не скрывались
             for (int col = 0; col < newTableLayoutPanel.ColumnCount; col++)
             {
-                newTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30));
+                newTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 30));// Устанавливаем стиль для всех столбцов, чтобы они не скрывались
             }
 
             for (int row = 0; row < rowCount; row++)
@@ -573,7 +637,6 @@ namespace WindowsFormsApp2
                     }
                 }
             }
-
             // Удалить старый TableLayoutPanel и заменить его на новый
             gameForm.Controls.Remove(tableLayoutPanel);
             tableLayoutPanel.Dispose();

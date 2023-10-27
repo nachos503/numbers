@@ -10,16 +10,30 @@ using System.IO;
 
 namespace WindowsFormsApp2
 {
+    /// <summary>
+    /// Класс базы данных
+    /// </summary>
     public class databaseManager
     {
 
         private string connectionString;
 
+        /// <summary>
+        /// Конструктор путь к бд
+        /// </summary>
+        /// <param name="databaseFilePath"></param>
         public databaseManager(string databaseFilePath)
         {
             connectionString = $"Data Source={databaseFilePath};Version=3;";
         }
 
+        /// <summary>
+        /// Метод сохранения временных данных 
+        /// </summary>
+        /// <param name="tableLayoutPanelData"></param>
+        /// <param name="playerScore"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="username"></param>
         public void SaveGameDataTemp(string tableLayoutPanelData, int playerScore, int rowCount, string username)
         {
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -39,8 +53,11 @@ namespace WindowsFormsApp2
 
         }
 
-
-
+        /// <summary>
+        /// Метод сохранения таблицы лидеров
+        /// </summary>
+        /// <param name="playerScore"></param>
+        /// <param name="username"></param>
         public void SaveLeaderboard(int playerScore, string username)
         {
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -57,9 +74,8 @@ namespace WindowsFormsApp2
                         if (reader.Read())
                         {
                             int currentScore = reader.GetInt32(0);
-
-                            // Проверяем, если новый счет больше текущего
-                            if (playerScore > currentScore)
+                            
+                            if (playerScore > currentScore)// Проверяем, если новый счет больше текущего
                             {
                                 using (SQLiteCommand updateCommand = connection.CreateCommand())
                                 {
@@ -71,9 +87,8 @@ namespace WindowsFormsApp2
                                 }
                             }
                         }
-                        else
+                        else // Если записи для данного пользователя нет, то создаем новую запись
                         {
-                            // Если записи для данного пользователя нет, то создаем новую запись
                             using (SQLiteCommand insertCommand = connection.CreateCommand())
                             {
                                 insertCommand.CommandText = "INSERT INTO LeaderboardData (PlayerScore, Username) VALUES ( @PlayerScore, @Username)";
@@ -88,7 +103,13 @@ namespace WindowsFormsApp2
             }
         }
 
-
+        /// <summary>
+        /// Метод сохранения игры
+        /// </summary>
+        /// <param name="tableLayoutPanelData"></param>
+        /// <param name="playerScore"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="username"></param>
         public void SaveGameData(string tableLayoutPanelData, int playerScore, int rowCount, string username)
         {
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -115,9 +136,8 @@ namespace WindowsFormsApp2
                                 updateCommand.ExecuteNonQuery();
                             }
                         }
-                        else
+                        else // Если записи для данного пользователя нет, то создаем новую запись
                         {
-                            // Если записи для данного пользователя нет, то создаем новую запись
                             using (SQLiteCommand insertCommand = connection.CreateCommand())
                             {
                                 insertCommand.CommandText = "INSERT INTO GameData (TableLayoutPanelData, PlayerScore, RowCount, Username) VALUES (@TableLayoutPanelData, @PlayerScore, @RowCount, @Username)";
@@ -134,9 +154,10 @@ namespace WindowsFormsApp2
             }
         }
 
-
-
-
+        /// <summary>
+        /// Загрузка данных
+        /// </summary>
+        /// <returns></returns>
         public (string tableLayoutPanelData, int playerScore, int rowCount) LoadGameData()
         {
             string tableLayoutPanelData = null;
@@ -162,40 +183,13 @@ namespace WindowsFormsApp2
                     }
                 }
             }
-
             return (tableLayoutPanelData, playerScore, rowCount);
         }
-
-        public (string Username, string tableLayoutPanelData, int PlayerScore, int rowCount) LoadGameDataTemp()
-        {
-            string Username = null;
-            string tableLayoutPanelData = null;
-            int PlayerScore = 0;
-            int rowCount = 0;
-
-            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
-            {
-                connection.Open();
-
-                using (SQLiteCommand cmd = new SQLiteCommand("SELECT TableLayoutPanelData, PlayerScore, RowCount FROM TempData WHERE Username = @Username", connection))
-                {
-                    cmd.Parameters.AddWithValue("@Username", Username);
-
-                    using (SQLiteDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            tableLayoutPanelData = reader["TableLayoutPanelData"].ToString();
-                            PlayerScore = Convert.ToInt32(reader["PlayerScore"]);
-                            rowCount = Convert.ToInt32(reader["RowCount"]);
-                        }
-                    }
-                }
-
-            }
-            return (Username, tableLayoutPanelData, PlayerScore, rowCount);
-
-        }
+       
+        /// <summary>
+        /// Загрузка таблицы лидеров 
+        /// </summary>
+        /// <returns></returns>
         public List<(string username, int playerScore)> LoadLeaderboard()
         {
             List<(string username, int playerScore)> leaderboard = new List<(string, int)>();
@@ -219,10 +213,14 @@ namespace WindowsFormsApp2
                     }
                 }
             }
-
             return leaderboard;
         }
 
+        /// <summary>
+        /// Метод провекри на наличие имени в бд
+        /// </summary>
+        /// <param name="playerName"></param>
+        /// <returns></returns>
         public bool IsPlayerNameAvailable(string playerName)
         {
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -237,6 +235,11 @@ namespace WindowsFormsApp2
             }
         }
 
+        /// <summary>
+        /// Загрузка временных данных 
+        /// </summary>
+        /// <param name="playerName"></param>
+        /// <returns></returns>
         public Tuple<string, int, int> LoadGameDataByUsernameTemp(string playerName)
         {
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -265,9 +268,13 @@ namespace WindowsFormsApp2
                     }
                 }
             }
-
         }
 
+        /// <summary>
+        /// Загрузка данных
+        /// </summary>
+        /// <param name="playerName"></param>
+        /// <returns></returns>
         public Tuple<string, int, int> LoadGameDataByUsername(string playerName)
         {
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -296,9 +303,12 @@ namespace WindowsFormsApp2
                     }
                 }
             }
-
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
         public void DeleteGameDataTemp(string username)
         {
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -312,6 +322,5 @@ namespace WindowsFormsApp2
                 }
             }
         }
-
     }
 }

@@ -8,9 +8,9 @@ namespace WindowsFormsApp2
 {
     internal class UserInterface : GameForm
     {
-
-
-
+        /// <summary>
+        /// Метод иницилизации формы и создание кнопок
+        /// </summary>
         public void InitializeForm()
         {
             gameForm = new GameForm();
@@ -31,6 +31,9 @@ namespace WindowsFormsApp2
             CreateLoadTempButton();
         }
 
+        /// <summary>
+        /// Метод иницилизации всех компонентов программы
+        /// </summary>
         public void Initialize()
         {
 
@@ -40,24 +43,37 @@ namespace WindowsFormsApp2
             PopulateTableLayoutPanel();
 
         }
-        private void HelpButtonText(object sender, EventArgs e) //обработка клика и вывод текста
+
+        /// <summary>
+        /// Вывод текста кнопки "помощь"
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HelpButtonText(object sender, EventArgs e) 
         {
             MessageBox.Show("-------------------------------| ПРАВИЛА ИГРЫ |-------------------------------" +
                 "\r\n\r\nУдалять можно одинаковые числа (или их сумма равна 10), которые находятся на одной строке или столбце, при условии, что между ними нет других чисел " +
                 "\r\n\r\nИгра заканчивается тогда, когда удалите все числа на поле");
         }
+
+        /// <summary>
+        /// Создание кнопки "помощь"
+        /// </summary>
         private void CreateHelpButton()
         {
             Button HelpButton = new Button();
             HelpButton.Text = "Помощь";
             HelpButton.Location = new Point(250, 110);
             HelpButton.AutoSize = true;
-            // Добавляем обработчик события нажатия на кнопку
-            HelpButton.Click += new EventHandler(HelpButtonText);
-            //Добавляем кнопку на форму
-            gameForm.Controls.Add(HelpButton);
+            
+            HelpButton.Click += new EventHandler(HelpButtonText);// Добавляем обработчик события нажатия на кнопку
+     
+            gameForm.Controls.Add(HelpButton);//Добавляем кнопку на форму
         }
 
+        /// <summary>
+        /// Создание кнопки "перезапустить игру"
+        /// </summary>
         public void CreateRestartButton()
         {
             Button restartButton = new Button();
@@ -68,6 +84,9 @@ namespace WindowsFormsApp2
             gameForm.Controls.Add(restartButton);
         }
 
+        /// <summary>
+        /// Создание кнопки "Выйти из игры"
+        /// </summary>
         public void CreateExitButton()
         {
             Button exitButton = new Button();
@@ -78,6 +97,9 @@ namespace WindowsFormsApp2
             gameForm.Controls.Add(exitButton);
         }
 
+        /// <summary>
+        /// Создание кнопки "Сохранить и выйти"
+        /// </summary>
         public void CreateSaveButton()
         {
             Button saveButton = new Button();
@@ -88,6 +110,9 @@ namespace WindowsFormsApp2
             gameForm.Controls.Add(saveButton);
         }
 
+        /// <summary>
+        /// Создание кнопки "Сохранить текущий ход"
+        /// </summary>
         public void CreateSaveTempButton()
         {
             Button saveTempButton = new Button();
@@ -98,6 +123,11 @@ namespace WindowsFormsApp2
             gameForm.Controls.Add(saveTempButton);
         }
 
+        /// <summary>
+        /// Логика сохранения текущего хода
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void SaveTempButton_Click(object sender, EventArgs e)
         {
             string username = user.Username.ToString();
@@ -106,6 +136,11 @@ namespace WindowsFormsApp2
             MessageBox.Show("Игра сохранена.");
         }
 
+        /// <summary>
+        /// Логика сохранения всей игры
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void SaveButton_Click(object sender, EventArgs e)
         {
             string username = user.Username.ToString();
@@ -116,6 +151,11 @@ namespace WindowsFormsApp2
             Application.Exit();
         }
 
+        /// <summary>
+        /// Обработка выхода из игры
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void ExitButton_Click(object sender, EventArgs e)
         {
             var dlgRes = MessageBox.Show("Вы хотите выйти без сохранения?", "", MessageBoxButtons.YesNo);
@@ -130,23 +170,26 @@ namespace WindowsFormsApp2
             }
         }
 
+        /// <summary>
+        /// Логика перезапуска игры
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void RestartButton_Click(object sender, EventArgs e)
         {
-            // Создаём новый экземпляр GameForm и инициализируйте его
-            UserInterface newUserInterface = new UserInterface();
+            UserInterface newUserInterface = new UserInterface();// Создаём новый экземпляр GameForm и инициализируйте его
             newUserInterface.Initialize();
 
-            // Получаем пользователя из текущего GameForm и передайте его в новый
+            newUserInterface.SetUser(user);//Получаем пользователя из текущего GameForm и передайте его в новый
 
-            newUserInterface.SetUser(user);
-
-            // Закрываем текущий GameForm
-            gameForm.Hide();
-
-            // Отображаем новый GameForm
-            newUserInterface.gameForm.Show();
+            gameForm.Hide();// Закрываем текущий GameForm
+            
+            newUserInterface.gameForm.Show();// Отображаем новый GameForm
         }
 
+        /// <summary>
+        /// Создание кнопки "Добавить цифры"
+        /// </summary>
         protected void CreateAddButton()
         {
             Button addButton = new Button();
@@ -155,10 +198,13 @@ namespace WindowsFormsApp2
             addButton.AutoSize = true;
             addButton.Click += (sender, e) => AddVisibleElementsToTable();
 
-            // Добавляем кнопку на форму
+            /** Добавляем кнопку на форму*/
             gameForm.Controls.Add(addButton);
         }
 
+        /// <summary>
+        /// Создание кнопки "Загрузка сохранения"
+        /// </summary>
         protected void CreateLoadButton()
         {
             Button loadButton = new Button();
@@ -169,6 +215,9 @@ namespace WindowsFormsApp2
             gameForm.Controls.Add(loadButton);
         }
 
+        /// <summary>
+        /// Создание кнопки "Вернуться к сохраненному ходу"
+        /// </summary>
         protected void CreateLoadTempButton()
         {
             Button loadTempButton = new Button();
@@ -179,24 +228,28 @@ namespace WindowsFormsApp2
             gameForm.Controls.Add(loadTempButton);
         }
 
+        /// <summary>
+        /// Создание кнопки "Счет"
+        /// </summary>
         protected void CreateScoreBoard()
         {
-            // Создаем или обновляем Label для отображения счета
             if (scoreLabel == null)
             {
                 scoreLabel = new Label();
                 scoreLabel.ForeColor = Color.Black;
                 scoreLabel.Font = new Font("Arial", 24, FontStyle.Bold);
                 scoreLabel.AutoSize = true;
-                scoreLabel.Location = new Point(280, 10); // Расположение Label с счетом
+                scoreLabel.Location = new Point(280, 10);// Расположение Label с счетом
                 scoreLabel.Text = "Счёт: " + score;
 
-                // Добавляем Label на форму
-                gameForm.Controls.Add(scoreLabel);
+                gameForm.Controls.Add(scoreLabel);// Добавляем Label на форму
 
             }
         }
 
+        /// <summary>
+        /// Создание кнопки "Таблица лидеров"
+        /// </summary>
         protected void CreateScoreBoardButton()
         {
             Button ScoreBoardButton = new Button();
@@ -206,12 +259,14 @@ namespace WindowsFormsApp2
 
             ScoreBoardButton.Click += ScoreBoardButton_Click;
 
-
-
-            //  Добавляем кнопку на форму
-            gameForm.Controls.Add(ScoreBoardButton);
+            gameForm.Controls.Add(ScoreBoardButton);//  Добавляем кнопку на форму
         }
 
+        /// <summary>
+        /// Обработка нажатие на кнопку "таблица лидеров"
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void ScoreBoardButton_Click(object sender, EventArgs e)
         {
             LoadLeaderboardFromDatabase();

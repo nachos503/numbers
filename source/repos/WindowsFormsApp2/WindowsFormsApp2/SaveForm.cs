@@ -3,16 +3,26 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp2
 {
+    /// <summary>
+    /// Класс пользователь для хранения имени, полученного от пользователя
+    /// </summary>
     class User
     {
         public string Username { get; set; }
 
+        /// <summary>
+        /// Конструктор присвоение имени
+        /// </summary>
+        /// <param name="username"></param>
         public User(string username)
         {
             Username = username;
         }
     }
 
+    /// <summary>
+    /// Класс для записи имени пользователя
+    /// </summary>
     class SaveForm : Form
     {
         private TextBox usernameTextBox; // Изменено на usernameTextBox
@@ -22,6 +32,11 @@ namespace WindowsFormsApp2
         private GameForm gameForm; // Добавляем экземпляр GameForm
         private bool ContinueClicked = false;
 
+        /// <summary>
+        /// Конструктор создания формы и экземпляров 
+        /// </summary>
+        /// <param name="dbManager"></param>
+        /// <param name="gameForm"></param>
         public SaveForm(databaseManager dbManager, GameForm gameForm)
         {
             this.dbManager = dbManager;
@@ -46,6 +61,11 @@ namespace WindowsFormsApp2
             this.FormClosing += SaveForm_FormClosing;
         }
 
+        /// <summary>
+        /// Обработка события FormClosing после нажатия на кнопку 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (ContinueClicked) { }
@@ -53,6 +73,11 @@ namespace WindowsFormsApp2
                 Application.Exit();
         }
 
+        /// <summary>
+        /// Кнопка перехода на новую форму
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ContinueButton_Click(object sender, EventArgs e)
         {
             string username = usernameTextBox.Text; // Изменено на username
@@ -78,7 +103,11 @@ namespace WindowsFormsApp2
             }
         }
 
-        // Добавляем метод, чтобы получить экземпляр User с Username
+        
+        /// <summary>
+        /// Метод, чтобы получить экземпляр User с Username
+        /// </summary>
+        /// <returns></returns>
         public User GetUser()
         {
             return user;

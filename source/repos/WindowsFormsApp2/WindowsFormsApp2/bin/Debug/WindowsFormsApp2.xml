@@ -1,0 +1,415 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WindowsFormsApp2</name>
+    </assembly>
+    <members>
+        <member name="T:WindowsFormsApp2.databaseManager">
+            <summary>
+            Класс базы данных
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.#ctor(System.String)">
+            <summary>
+            Конструктор путь к бд
+            </summary>
+            <param name="databaseFilePath"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.SaveGameDataTemp(System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            Метод сохранения временных данных 
+            </summary>
+            <param name="tableLayoutPanelData"></param>
+            <param name="playerScore"></param>
+            <param name="rowCount"></param>
+            <param name="username"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.SaveLeaderboard(System.Int32,System.String)">
+            <summary>
+            Метод сохранения таблицы лидеров
+            </summary>
+            <param name="playerScore"></param>
+            <param name="username"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.SaveGameData(System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            Метод сохранения игры
+            </summary>
+            <param name="tableLayoutPanelData"></param>
+            <param name="playerScore"></param>
+            <param name="rowCount"></param>
+            <param name="username"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.LoadGameData">
+            <summary>
+            Загрузка данных
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.LoadLeaderboard">
+            <summary>
+            Загрузка таблицы лидеров 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.IsPlayerNameAvailable(System.String)">
+            <summary>
+            Метод провекри на наличие имени в бд
+            </summary>
+            <param name="playerName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.LoadGameDataByUsernameTemp(System.String)">
+            <summary>
+            Загрузка временных данных 
+            </summary>
+            <param name="playerName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.LoadGameDataByUsername(System.String)">
+            <summary>
+            Загрузка данных
+            </summary>
+            <param name="playerName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.databaseManager.DeleteGameDataTemp(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="username"></param>
+        </member>
+        <member name="T:WindowsFormsApp2.GameForm">
+            <summary>
+            Класс GameForm основное окно игры
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.#ctor">
+            <summary>
+            Конструктор иницилизации бд и привязка к пути файла
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.SetUser(WindowsFormsApp2.User)">
+            <summary>
+            Метод для установки пользователя 
+            </summary>
+            <param name="user"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.InitializeMatrix">
+            <summary>
+            Метод иницилизации матрицы
+            </summary>
+        </member>
+        <member name="T:WindowsFormsApp2.GameForm.LabelColor">
+            <summary>
+            Перечисляемый тип для перечисления цветов
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.SetLabelColor(System.Windows.Forms.Label)">
+            <summary>
+            Метод установки цветов 
+            </summary>
+            <param name="label"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.InitializeTableLayoutPanel">
+            <summary>
+            Метод иницилизации игрового поля 
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.PopulateTableLayoutPanel">
+            <summary>
+            Метод заполнения игрового поля
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.label_Click(System.Object,System.EventArgs)">
+            <summary>
+            Метод обработки клика и обработка логики игры
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.Checking_Intersections">
+            <summary>
+            Проверка на наличие цифр между нажатыми цифрами
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.AreNumbersInBetweenByColumn(System.Windows.Forms.Label,System.Windows.Forms.Label)">
+            <summary>
+            Метод проверки нахлждения цифр в одном столбце
+            </summary>
+            <param name="firstlabelclick"></param>
+            <param name="secondlabelclick"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.AreNumbersInBetweenByRow(System.Windows.Forms.Label,System.Windows.Forms.Label)">
+            <summary>
+            Метод проверки нахождения цифр в одной строке
+            </summary>
+            <param name="firstlabelclick"></param>
+            <param name="secondlabelclick"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.AddVisibleElementsToTable">
+            <summary>
+            Метод добавления новых элементов
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.IsGameFinished">
+            <summary>
+            Метод проверки конца игры
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.UpdateScore(System.Int32)">
+            <summary>
+            Метод для обновления счета и отображения его на форме
+            </summary>
+            <param name="pointsToAdd"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.GetDatabaseManager">
+            <summary>
+            Метод для получения экземпляра класса бд
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.SaveGameDataTempToDatabase(System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            Метод временного сохранения данных
+            </summary>
+            <param name="tableLayoutPanelData"></param>
+            <param name="playerScore"></param>
+            <param name="rowCount"></param>
+            <param name="username"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.SaveGameDataToDatabase(System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            Метод сохранения данных
+            </summary>
+            <param name="tableLayoutPanelData"></param>
+            <param name="playerScore"></param>
+            <param name="rowCount"></param>
+            <param name="username"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.SaveLeaderboardToDatabase(System.Int32,System.String)">
+            <summary>
+            Метод сохранения данных таблицы лидеров
+            </summary>
+            <param name="playerScore"></param>
+            <param name="username"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.SerializeTableLayoutPanelData">
+            <summary>
+            Метод для сериализации данных
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.LoadGameDataFromDatabaseByUsernameTemp(System.String)">
+            <summary>
+            Метод загрузки временных данных 
+            </summary>
+            <param name="playerName"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.LoadGameDataFromDatabaseByUsername(System.String)">
+            <summary>
+            Метод загрузки сохраненных данных
+            </summary>
+            <param name="playerName"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.LoadLeaderboardFromDatabase">
+            <summary>
+            Метод данных таблицы лидеров
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.GameForm.DeserializeTableLayoutPanelData(System.String,System.Int32)">
+            <summary>
+            Метод десериализации
+            </summary>
+            <param name="data"></param>
+            <param name="rowCount"></param>
+        </member>
+        <member name="F:WindowsFormsApp2.Form1.components">
+            <summary>
+            Обязательная переменная конструктора.
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.Form1.Dispose(System.Boolean)">
+            <summary>
+            Освободить все используемые ресурсы.
+            </summary>
+            <param name="disposing">истинно, если управляемый ресурс должен быть удален; иначе ложно.</param>
+        </member>
+        <member name="M:WindowsFormsApp2.Form1.InitializeComponent">
+            <summary>
+            Требуемый метод для поддержки конструктора — не изменяйте 
+            содержимое этого метода с помощью редактора кода.
+            </summary>
+        </member>
+        <member name="T:WindowsFormsApp2.User">
+            <summary>
+            Класс пользователь для хранения имени, полученного от пользователя
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.User.#ctor(System.String)">
+            <summary>
+            Конструктор присвоение имени
+            </summary>
+            <param name="username"></param>
+        </member>
+        <member name="T:WindowsFormsApp2.SaveForm">
+            <summary>
+            Класс для записи имени пользователя
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.SaveForm.#ctor(WindowsFormsApp2.databaseManager,WindowsFormsApp2.GameForm)">
+            <summary>
+            Конструктор создания формы и экземпляров 
+            </summary>
+            <param name="dbManager"></param>
+            <param name="gameForm"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.SaveForm.SaveForm_FormClosing(System.Object,System.Windows.Forms.FormClosingEventArgs)">
+            <summary>
+            Обработка события FormClosing после нажатия на кнопку 
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.SaveForm.ContinueButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Кнопка перехода на новую форму
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.SaveForm.GetUser">
+            <summary>
+            Метод, чтобы получить экземпляр User с Username
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.InitializeForm">
+            <summary>
+            Метод иницилизации формы и создание кнопок
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.Initialize">
+            <summary>
+            Метод иницилизации всех компонентов программы
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.HelpButtonText(System.Object,System.EventArgs)">
+            <summary>
+            Вывод текста кнопки "помощь"
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateHelpButton">
+            <summary>
+            Создание кнопки "помощь"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateRestartButton">
+            <summary>
+            Создание кнопки "перезапустить игру"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateExitButton">
+            <summary>
+            Создание кнопки "Выйти из игры"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateSaveButton">
+            <summary>
+            Создание кнопки "Сохранить и выйти"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateSaveTempButton">
+            <summary>
+            Создание кнопки "Сохранить текущий ход"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.SaveTempButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Логика сохранения текущего хода
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.SaveButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Логика сохранения всей игры
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.ExitButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Обработка выхода из игры
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.RestartButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Логика перезапуска игры
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateAddButton">
+            <summary>
+            Создание кнопки "Добавить цифры"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateLoadButton">
+            <summary>
+            Создание кнопки "Загрузка сохранения"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateLoadTempButton">
+            <summary>
+            Создание кнопки "Вернуться к сохраненному ходу"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateScoreBoard">
+            <summary>
+            Создание кнопки "Счет"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.CreateScoreBoardButton">
+            <summary>
+            Создание кнопки "Таблица лидеров"
+            </summary>
+        </member>
+        <member name="M:WindowsFormsApp2.UserInterface.ScoreBoardButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Обработка нажатие на кнопку "таблица лидеров"
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:WindowsFormsApp2.Properties.Resources">
+            <summary>
+              Класс ресурса со строгой типизацией для поиска локализованных строк и т.д.
+            </summary>
+        </member>
+        <member name="P:WindowsFormsApp2.Properties.Resources.ResourceManager">
+            <summary>
+              Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
+            </summary>
+        </member>
+        <member name="P:WindowsFormsApp2.Properties.Resources.Culture">
+            <summary>
+              Перезаписывает свойство CurrentUICulture текущего потока для всех
+              обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
+            </summary>
+        </member>
+        <member name="P:WindowsFormsApp2.Properties.Resources.loading">
+            <summary>
+              Ищет локализованную строку, похожую на .
+            </summary>
+        </member>
+    </members>
+</doc>
