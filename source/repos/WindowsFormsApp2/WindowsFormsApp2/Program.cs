@@ -12,24 +12,24 @@ namespace WindowsFormsApp2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            GameForm gameForm1 = new GameForm(); // Создайте GameForm, который инициализирует DatabaseManager внутри конструктора
-            gameForm1.Initialize();
+            UserInterface userInterface = new UserInterface();
+            userInterface.Initialize();
 
-            // Получите DatabaseManager из GameForm
-            databaseManager dbManager = gameForm1.GetDatabaseManager();
+            // Получаем DatabaseManager из GameForm
+            databaseManager dbManager = userInterface.GetDatabaseManager();
 
-            SaveForm saveForm = new SaveForm(dbManager, gameForm1); // Передайте DatabaseManager в конструктор SaveForm
+            SaveForm saveForm = new SaveForm(dbManager, userInterface); // Передайте DatabaseManager в конструктор SaveForm
             
             saveForm.ShowDialog(); // Откройте SaveForm
 
             
-            // После закрытия SaveForm, получите User и передайте его в GameForm
+            // После закрытия SaveForm, получаем User и передаём его в GameForm
             User user = saveForm.GetUser();
-            gameForm1.SetUser(user); // Передайте пользователя в GameForm
+            userInterface.SetUser(user); // Передаём пользователя в GameForm
 
 
           
-            Application.Run(gameForm1.gameForm);
+            Application.Run(userInterface.gameForm);
 
         }
     }

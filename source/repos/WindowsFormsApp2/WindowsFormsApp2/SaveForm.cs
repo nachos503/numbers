@@ -15,7 +15,7 @@ namespace WindowsFormsApp2
 
     class SaveForm : Form
     {
-        private TextBox playerNameTextBox;
+        private TextBox usernameTextBox; // Изменено на usernameTextBox
         private Button continueButton;
         private databaseManager dbManager;
         private User user; // Добавляем экземпляр класса User для хранения Username
@@ -30,9 +30,9 @@ namespace WindowsFormsApp2
             this.Text = "Имя пользователя";
             this.Size = new System.Drawing.Size(1920, 1080);
 
-            playerNameTextBox = new TextBox();
-            playerNameTextBox.Location = new System.Drawing.Point(500, 500);
-            playerNameTextBox.Size = new System.Drawing.Size(200, 25);
+            usernameTextBox = new TextBox(); // Изменено на usernameTextBox
+            usernameTextBox.Location = new System.Drawing.Point(500, 500);
+            usernameTextBox.Size = new System.Drawing.Size(200, 25);
 
             continueButton = new Button();
             continueButton.Text = "Продолжить";
@@ -40,7 +40,7 @@ namespace WindowsFormsApp2
             continueButton.AutoSize = true;
             continueButton.Click += ContinueButton_Click;
 
-            this.Controls.Add(playerNameTextBox);
+            this.Controls.Add(usernameTextBox); // Изменено на usernameTextBox
             this.Controls.Add(continueButton);
 
             this.FormClosing += SaveForm_FormClosing;
@@ -48,32 +48,32 @@ namespace WindowsFormsApp2
 
         private void SaveForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (ContinueClicked){ }
+            if (ContinueClicked) { }
             else
-            Application.Exit();
+                Application.Exit();
         }
 
         private void ContinueButton_Click(object sender, EventArgs e)
         {
-            string playerName = playerNameTextBox.Text;
-            if (string.IsNullOrWhiteSpace(playerName))
+            string username = usernameTextBox.Text; // Изменено на username
+            if (string.IsNullOrWhiteSpace(username))
             {
                 MessageBox.Show("Введите имя");
             }
-            else if (!dbManager.IsPlayerNameAvailable(playerName))
+            else if (!dbManager.IsPlayerNameAvailable(username))
             {
                 ContinueClicked = true;
-                user = new User(playerName);
-                
+                user = new User(username);
+
                 // Вызываем метод из GameForm, передавая имя игрока
-                gameForm.LoadGameDataFromDatabaseByUsername(playerName);
+                gameForm.LoadGameDataFromDatabaseByUsername(username);
 
                 this.Close();
             }
-            else if (dbManager.IsPlayerNameAvailable(playerName))
+            else if (dbManager.IsPlayerNameAvailable(username))
             {
                 ContinueClicked = true;
-                user = new User(playerName);
+                user = new User(username);
                 this.Close();
             }
         }
